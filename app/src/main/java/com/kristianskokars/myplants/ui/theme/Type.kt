@@ -22,7 +22,8 @@ val Poppins = FontFamily(
     Font(googleFont = poppinsFontName, fontProvider = provider, weight = FontWeight.Bold),
     Font(googleFont = poppinsFontName, fontProvider = provider, weight = FontWeight.SemiBold),
     Font(googleFont = poppinsFontName, fontProvider = provider, weight = FontWeight.Light),
-    Font(R.font.poppins_regular)
+    Font(R.font.poppins_regular),
+    Font(R.font.poppins_semibold, weight = FontWeight.SemiBold)
 )
 
 val Typography = Typography(

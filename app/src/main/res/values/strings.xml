@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">MyPlants</string>
+    <string name="lets_care_my_plants_title">Let\'s Care\nMy Plants!</string>
+    <string name="view_notifications">View Notifications</string>
+    <string name="no_plants_in_list">There are no plants in the list, please add your first plant.</string>
+    <string name="sorry">Sorry.</string>
+    <string name="add_your_first_plant">Add Your First Plant</string>
+    <string name="history">History</string>
+    <string name="forgot_to_water">Forgot to water</string>
+    <string name="upcoming">Upcoming</string>
 </resources>
