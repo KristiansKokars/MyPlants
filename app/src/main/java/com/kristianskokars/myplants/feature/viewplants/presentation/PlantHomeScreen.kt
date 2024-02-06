@@ -51,8 +51,12 @@ import com.kristianskokars.myplants.core.presentation.theme.Neutralus100
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus300
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
 import com.kristianskokars.myplants.feature.viewplants.presentation.components.PlantCard
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 
 @Composable
+@Destination
+@RootNavGraph(start = true)
 fun PlantHomeScreen() {
     PlantHomeScreenContent()
 }
