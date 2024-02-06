@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -41,28 +38,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kristianskokars.myplants.R
 import com.kristianskokars.myplants.core.data.model.Plant
+import com.kristianskokars.myplants.core.presentation.components.MyPlantsButton
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTab
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTabRow
 import com.kristianskokars.myplants.core.presentation.components.NotificationButton
 import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
 import com.kristianskokars.myplants.core.presentation.theme.Accent500
-import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus100
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus300
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
+import com.kristianskokars.myplants.feature.destinations.AddPlantScreenDestination
 import com.kristianskokars.myplants.feature.viewplants.presentation.components.PlantCard
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 
 @Composable
 @Destination
 @RootNavGraph(start = true)
-fun PlantHomeScreen() {
-    PlantHomeScreenContent()
+fun PlantHomeScreen(
+    navigator: DestinationsNavigator
+) {
+    PlantHomeScreenContent(navigator = navigator)
 }
 
 @Composable
-private fun PlantHomeScreenContent() {
+private fun PlantHomeScreenContent(
+    navigator: DestinationsNavigator
+) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val plants = remember { emptyList<Plant>() }
 
@@ -75,7 +79,7 @@ private fun PlantHomeScreenContent() {
                     elevation = FloatingActionButtonDefaults.loweredElevation(),
                     containerColor = Accent500,
                     contentColor = Neutralus100,
-                    onClick = { /*TODO*/ }
+                    onClick = { navigator.navigate(AddPlantScreenDestination)}
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_add),
@@ -146,7 +150,7 @@ private fun PlantHomeScreenContent() {
                 }
                 Spacer(modifier = Modifier.size(20.dp))
                 if (plants.isEmpty()) {
-                    NoPlantsInList()
+                    NoPlantsInList(onAddYourFirstPlantClick = { navigator.navigate(AddPlantScreenDestination)} )
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -168,7 +172,9 @@ private fun PlantHomeScreenContent() {
 }
 
 @Composable
-private fun NoPlantsInList() {
+private fun NoPlantsInList(
+    onAddYourFirstPlantClick: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.size(80.dp))
         Image(painter = painterResource(id = R.drawable.plants), contentDescription = null)
@@ -186,16 +192,8 @@ private fun NoPlantsInList() {
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(modifier = Modifier.size(16.dp))
-        Button(
-            contentPadding = PaddingValues(horizontal = 60.dp, vertical = 16.dp),
-            shape = RoundedCornerShape(10.dp),
-            onClick = { /*TODO*/ }
-        ) {
-            Text(
-                text = stringResource(R.string.add_your_first_plant),
-                style = MaterialTheme.typography.bodyLarge,
-                color = Neutralus0
-            )
+        MyPlantsButton(onClick = onAddYourFirstPlantClick) {
+            Text(text = stringResource(R.string.add_your_first_plant))
         }
     }
 }
@@ -221,6 +219,8 @@ private fun LinearWhiteFadeOut(modifier: Modifier = Modifier) {
 @Composable
 private fun PlantHomeScreenPreview() {
     ScreenSurface {
-        PlantHomeScreenContent()
+        PlantHomeScreenContent(
+            navigator = EmptyDestinationsNavigator
+        )
     }
 }
