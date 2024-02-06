@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kristianskokars.myplants.R
 import com.kristianskokars.myplants.core.data.model.Plant
-import com.kristianskokars.myplants.core.presentation.components.MyPlantsButton
+import com.kristianskokars.myplants.core.presentation.components.BigButton
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTab
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTabRow
 import com.kristianskokars.myplants.core.presentation.components.NotificationButton
@@ -192,7 +192,7 @@ private fun NoPlantsInList(
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(modifier = Modifier.size(16.dp))
-        MyPlantsButton(onClick = onAddYourFirstPlantClick) {
+        BigButton(onClick = onAddYourFirstPlantClick) {
             Text(text = stringResource(R.string.add_your_first_plant))
         }
     }

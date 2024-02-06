@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 
 @Composable
-fun MyPlantsButton(
+fun BigButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     content: @Composable () -> Unit,
