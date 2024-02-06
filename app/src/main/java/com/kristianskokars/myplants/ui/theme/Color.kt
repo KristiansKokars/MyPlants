@@ -28,3 +28,5 @@ val OtherYellow500 = Color(0xFFDBE1BB)
 val OtherYellow100 = Color(0xFFFDFFF1)
 
 val Red = Color(0xFFFC1B1B)
+val TransparentGray = Color(0x40222222)
+val GrayBorder = Color(0x40D9D9D9)

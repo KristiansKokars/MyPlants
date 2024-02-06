@@ -8,4 +8,9 @@
     <string name="history">History</string>
     <string name="forgot_to_water">Forgot to water</string>
     <string name="upcoming">Upcoming</string>
+    <string name="add_new_plant">Add new plant</string>
+    <string name="needs_watering">Needs watering</string>
+    <string name="today">Today</string>
+    <string name="milliliters">%dml</string>
+    <string name="plant_is_watered">Plant is watered</string>
 </resources>
