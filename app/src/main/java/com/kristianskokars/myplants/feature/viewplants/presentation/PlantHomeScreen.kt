@@ -45,12 +45,12 @@ import com.kristianskokars.myplants.core.presentation.components.MyPlantsTab
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTabRow
 import com.kristianskokars.myplants.core.presentation.components.NotificationButton
 import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
+import com.kristianskokars.myplants.core.presentation.theme.Accent500
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus100
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus300
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
 import com.kristianskokars.myplants.feature.viewplants.presentation.components.PlantCard
-import com.kristianskokars.myplants.ui.theme.Accent500
-import com.kristianskokars.myplants.ui.theme.Neutralus0
-import com.kristianskokars.myplants.ui.theme.Neutralus100
-import com.kristianskokars.myplants.ui.theme.Neutralus300
-import com.kristianskokars.myplants.ui.theme.Neutralus900
 
 @Composable
 fun PlantHomeScreen() {

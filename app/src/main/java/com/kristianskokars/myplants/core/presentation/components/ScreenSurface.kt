@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.zIndex
 import com.kristianskokars.myplants.R
-import com.kristianskokars.myplants.ui.theme.MyPlantsTheme
+import com.kristianskokars.myplants.core.presentation.theme.MyPlantsTheme
 
 @Composable
 fun ScreenSurface(

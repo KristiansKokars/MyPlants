@@ -1,4 +1,4 @@
-package com.kristianskokars.myplants.ui.theme
+package com.kristianskokars.myplants.core.presentation.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme

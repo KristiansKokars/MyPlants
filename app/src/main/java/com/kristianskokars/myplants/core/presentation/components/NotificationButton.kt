@@ -16,9 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.kristianskokars.myplants.R
-import com.kristianskokars.myplants.ui.theme.Neutralus100
-import com.kristianskokars.myplants.ui.theme.Neutralus500
-import com.kristianskokars.myplants.ui.theme.Red
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus100
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus500
+import com.kristianskokars.myplants.core.presentation.theme.Red
 
 @Composable
 fun NotificationButton() {

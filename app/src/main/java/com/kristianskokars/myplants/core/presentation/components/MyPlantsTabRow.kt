@@ -31,7 +31,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import com.kristianskokars.myplants.core.presentation.components.TabRowDefaults.tabIndicatorOffset
-import com.kristianskokars.myplants.ui.theme.Accent500
+import com.kristianskokars.myplants.core.presentation.theme.Accent500
 
 /** Modified version of Material3 tab row, to change the indicator and child width behaviour. */
 @Composable

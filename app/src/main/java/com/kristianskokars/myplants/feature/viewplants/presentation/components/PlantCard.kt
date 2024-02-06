@@ -28,13 +28,13 @@ import androidx.compose.ui.zIndex
 import com.kristianskokars.myplants.R
 import com.kristianskokars.myplants.core.data.model.Plant
 import com.kristianskokars.myplants.core.presentation.components.styledHazeChild
-import com.kristianskokars.myplants.ui.theme.Accent100
-import com.kristianskokars.myplants.ui.theme.Accent500
-import com.kristianskokars.myplants.ui.theme.GrayBorder
-import com.kristianskokars.myplants.ui.theme.Neutralus0
-import com.kristianskokars.myplants.ui.theme.Neutralus900
-import com.kristianskokars.myplants.ui.theme.OtherGreen100
-import com.kristianskokars.myplants.ui.theme.TransparentGray
+import com.kristianskokars.myplants.core.presentation.theme.Accent100
+import com.kristianskokars.myplants.core.presentation.theme.Accent500
+import com.kristianskokars.myplants.core.presentation.theme.GrayBorder
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
+import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
+import com.kristianskokars.myplants.core.presentation.theme.OtherGreen100
+import com.kristianskokars.myplants.core.presentation.theme.TransparentGray
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 
