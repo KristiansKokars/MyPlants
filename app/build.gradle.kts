@@ -65,9 +65,6 @@ dependencies {
     implementation(libs.compose.destinations.animations)
     ksp(libs.compose.destinations.ksp)
 
-    // Fonts
-    implementation(libs.androidx.ui.text.google.fonts)
-
     // Haze
     implementation(libs.haze)
 
