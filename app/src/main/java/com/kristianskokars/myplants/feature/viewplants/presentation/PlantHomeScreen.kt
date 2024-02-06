@@ -1,4 +1,4 @@
-package com.kristianskokars.myplants.feature.view_plants.presentation
+package com.kristianskokars.myplants.feature.viewplants.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,7 +45,7 @@ import com.kristianskokars.myplants.core.presentation.components.MyPlantsTab
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTabRow
 import com.kristianskokars.myplants.core.presentation.components.NotificationButton
 import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
-import com.kristianskokars.myplants.feature.view_plants.presentation.components.PlantCard
+import com.kristianskokars.myplants.feature.viewplants.presentation.components.PlantCard
 import com.kristianskokars.myplants.ui.theme.Accent500
 import com.kristianskokars.myplants.ui.theme.Neutralus0
 import com.kristianskokars.myplants.ui.theme.Neutralus100

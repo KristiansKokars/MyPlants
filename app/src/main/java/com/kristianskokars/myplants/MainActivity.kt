@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
-import com.kristianskokars.myplants.feature.view_plants.presentation.PlantHomeScreen
+import com.kristianskokars.myplants.feature.viewplants.presentation.PlantHomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
