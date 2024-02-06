@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.zIndex
 import com.kristianskokars.myplants.R
@@ -16,12 +17,13 @@ import com.kristianskokars.myplants.core.presentation.theme.MyPlantsTheme
 @Composable
 fun ScreenSurface(
     modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colorScheme.background,
     content: @Composable () -> Unit,
 ) {
     MyPlantsTheme {
         Surface(
             modifier = modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+            color = backgroundColor
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Image(
