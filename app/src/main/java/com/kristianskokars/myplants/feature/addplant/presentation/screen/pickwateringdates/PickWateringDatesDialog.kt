@@ -1,4 +1,4 @@
-package com.kristianskokars.myplants.feature.addplant
+package com.kristianskokars.myplants.feature.addplant.presentation.screen.pickwateringdates
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,28 +20,44 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kristianskokars.myplants.R
+import com.kristianskokars.myplants.core.data.model.Day
+import com.kristianskokars.myplants.core.data.model.DayList
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTertiaryButton
 import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
 import com.kristianskokars.myplants.core.presentation.components.SmallButton
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus300
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
+
+@Destination(style = DestinationStyle.Dialog.Default::class)
+@Composable
+fun PickWateringDatesDialogDestination(
+    navigator: DestinationsNavigator,
+    viewModel: PickWateringDatesViewModel = viewModel(),
+    resultNavigator: ResultBackNavigator<DayList>
+) {
+    PickWateringDatesDialog(
+        resultNavigator = resultNavigator,
+        wateringDates = viewModel.wateringDates,
+        selectDay = viewModel::onSelectDay,
+        onDismiss = navigator::navigateUp
+    )
+}
 
 @Composable
-fun PickWateringDatesDialog(
+private fun PickWateringDatesDialog(
+    resultNavigator: ResultBackNavigator<DayList>,
+    wateringDates: Map<Day, Boolean>,
+    selectDay: (Day) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val options = listOf(
-        stringResource(R.string.everyday),
-        stringResource(R.string.monday),
-        stringResource(R.string.tuesday),
-        stringResource(R.string.wednesday),
-        stringResource(R.string.thursday),
-        stringResource(R.string.friday),
-        stringResource(R.string.saturday),
-        stringResource(R.string.sunday)
-    )
 
     Dialog(
         onDismissRequest = onDismiss
@@ -58,11 +74,11 @@ fun PickWateringDatesDialog(
                 style = MaterialTheme.typography.bodyLarge,
                 color = Neutralus900
             )
-            options.forEachIndexed { index, optionText ->
+            wateringDates.forEach { (date, isSelected) ->
                 CheckboxOption(
-                    checked = index == 1,
-                    onClick = { /*TODO*/ },
-                    text = optionText
+                    checked = isSelected,
+                    onClick = { selectDay(date) },
+                    text = date.toUIString()
                 )
             }
             Spacer(modifier = Modifier.size(8.dp))
@@ -79,7 +95,7 @@ fun PickWateringDatesDialog(
                 Spacer(modifier = Modifier.size(8.dp))
                 SmallButton(
                     modifier = Modifier.weight(1f),
-                    onClick = { /*TODO*/ }
+                    onClick = { resultNavigator.navigateBack(DayList(wateringDates.mapNotNull { date -> date.key.takeIf { date.value } })) }
                 ) {
                     Text(text = stringResource(R.string.got_it))
                 }
@@ -114,6 +130,11 @@ private fun CheckboxOption(
 @Composable
 private fun PickPlantSizeDialogPreview() {
     ScreenSurface {
-        PickWateringDatesDialog(onDismiss = {})
+        PickWateringDatesDialog(
+            onDismiss = {},
+            resultNavigator = EmptyResultBackNavigator(),
+            wateringDates = emptyMap(),
+            selectDay = {}
+        )
     }
 }

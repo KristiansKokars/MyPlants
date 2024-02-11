@@ -44,6 +44,7 @@ import com.kristianskokars.myplants.core.presentation.components.MyPlantsTabRow
 import com.kristianskokars.myplants.core.presentation.components.NotificationButton
 import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
 import com.kristianskokars.myplants.core.presentation.theme.Accent500
+import com.kristianskokars.myplants.core.presentation.theme.MyPlantsTheme
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus100
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus300
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
@@ -70,103 +71,105 @@ private fun PlantHomeScreenContent(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val plants = remember { emptyList<Plant>() }
 
-    Scaffold(
-        containerColor = Color.Transparent,
-        floatingActionButton = {
-            if (plants.isNotEmpty()) {
-                FloatingActionButton(
-                    modifier = Modifier.padding(bottom = 64.dp),
-                    elevation = FloatingActionButtonDefaults.loweredElevation(),
-                    containerColor = Accent500,
-                    contentColor = Neutralus100,
-                    onClick = { navigator.navigate(AddPlantScreenDestination)}
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_add),
-                        contentDescription = stringResource(R.string.add_new_plant)
-                    )
-                }
-            }
-        },
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 36.dp, start = 16.dp, end = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.lets_care_my_plants_title),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    NotificationButton()
-                }
-                Spacer(modifier = Modifier.size(16.dp))
-                MyPlantsTabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    containerColor = Color.Transparent,
-                ) {
-                    MyPlantsTab(
-                        selected = selectedTabIndex == 0,
-                        onClick = { selectedTabIndex = 0 },
-                        text = {
-                            Text(
-                                text = stringResource(R.string.upcoming),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = if (selectedTabIndex == 0) Accent500 else Neutralus300
-                            )
-                        }
-                    )
-                    MyPlantsTab(
-                        selected = selectedTabIndex == 1,
-                        onClick = { selectedTabIndex = 1 },
-                        text = {
-                            Text(
-                                text = stringResource(R.string.forgot_to_water),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = if (selectedTabIndex == 1) Accent500 else Neutralus300
-                            )
-                        }
-                    )
-                    MyPlantsTab(
-                        selected = selectedTabIndex == 2,
-                        onClick = { selectedTabIndex = 2 },
-                        text = {
-                            Text(
-                                text = stringResource(R.string.history),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = if (selectedTabIndex == 2) Accent500 else Neutralus300
-                            )
-                        }
-                    )
-                }
-                Spacer(modifier = Modifier.size(20.dp))
-                if (plants.isEmpty()) {
-                    NoPlantsInList(onAddYourFirstPlantClick = { navigator.navigate(AddPlantScreenDestination)} )
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ScreenSurface {
+        Scaffold(
+            containerColor = Color.Transparent,
+            floatingActionButton = {
+                if (plants.isNotEmpty()) {
+                    FloatingActionButton(
+                        modifier = Modifier.padding(bottom = 64.dp),
+                        elevation = FloatingActionButtonDefaults.loweredElevation(),
+                        containerColor = Accent500,
+                        contentColor = Neutralus100,
+                        onClick = { navigator.navigate(AddPlantScreenDestination)}
                     ) {
-                        items(plants, key = { it.id }) {
-                            PlantCard(it)
-                        }
-                        item {
-                            Spacer(modifier = Modifier.size(64.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_add),
+                            contentDescription = stringResource(R.string.add_new_plant)
+                        )
+                    }
+                }
+            },
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 36.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.lets_care_my_plants_title),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        NotificationButton()
+                    }
+                    Spacer(modifier = Modifier.size(16.dp))
+                    MyPlantsTabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        containerColor = Color.Transparent,
+                    ) {
+                        MyPlantsTab(
+                            selected = selectedTabIndex == 0,
+                            onClick = { selectedTabIndex = 0 },
+                            text = {
+                                Text(
+                                    text = stringResource(R.string.upcoming),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (selectedTabIndex == 0) Accent500 else Neutralus300
+                                )
+                            }
+                        )
+                        MyPlantsTab(
+                            selected = selectedTabIndex == 1,
+                            onClick = { selectedTabIndex = 1 },
+                            text = {
+                                Text(
+                                    text = stringResource(R.string.forgot_to_water),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (selectedTabIndex == 1) Accent500 else Neutralus300
+                                )
+                            }
+                        )
+                        MyPlantsTab(
+                            selected = selectedTabIndex == 2,
+                            onClick = { selectedTabIndex = 2 },
+                            text = {
+                                Text(
+                                    text = stringResource(R.string.history),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (selectedTabIndex == 2) Accent500 else Neutralus300
+                                )
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(20.dp))
+                    if (plants.isEmpty()) {
+                        NoPlantsInList(onAddYourFirstPlantClick = { navigator.navigate(AddPlantScreenDestination)} )
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(plants, key = { it.id }) {
+                                PlantCard(it)
+                            }
+                            item {
+                                Spacer(modifier = Modifier.size(64.dp))
+                            }
                         }
                     }
                 }
+                LinearWhiteFadeOut(modifier = Modifier.align(Alignment.BottomCenter))
             }
-            LinearWhiteFadeOut(modifier = Modifier.align(Alignment.BottomCenter))
         }
     }
 }
@@ -218,9 +221,7 @@ private fun LinearWhiteFadeOut(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun PlantHomeScreenPreview() {
-    ScreenSurface {
-        PlantHomeScreenContent(
-            navigator = EmptyDestinationsNavigator
-        )
+    MyPlantsTheme {
+        PlantHomeScreenContent(navigator = EmptyDestinationsNavigator)
     }
 }

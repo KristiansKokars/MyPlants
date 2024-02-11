@@ -14,6 +14,7 @@ import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 @Composable
 fun BigButton(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -23,6 +24,7 @@ fun BigButton(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 60.dp, vertical = 16.dp),
         shape = RoundedCornerShape(10.dp),
+        enabled = enabled,
         onClick = onClick
     ) {
         CompositionLocalProvider(LocalTextStyle provides buttonTextStyle) {

@@ -1,4 +1,4 @@
-package com.kristianskokars.myplants.feature.addplant
+package com.kristianskokars.myplants.feature.addplant.presentation.screen.pickplantsize
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,16 +19,43 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kristianskokars.myplants.R
+import com.kristianskokars.myplants.core.data.model.PlantSize
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTertiaryButton
 import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
 import com.kristianskokars.myplants.core.presentation.components.SmallButton
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
+
+@Destination(style = DestinationStyle.Dialog.Default::class)
+@Composable
+fun PickPlantSizeDialogDestination(
+    viewModel: PickPlantSizeViewModel = viewModel(),
+    navigator: DestinationsNavigator,
+    resultNavigator: ResultBackNavigator<PlantSize>
+) {
+    PickPlantSizeDialog(
+        availablePlantSizes = viewModel.availablePlantSizes,
+        selectedPlantSizeIndex = viewModel.selectedPlantSizeIndex,
+        selectPlantSize = viewModel::onSelectPlantSize,
+        onDismiss = navigator::navigateUp,
+        resultNavigator = resultNavigator,
+    )
+}
 
 @Composable
-fun PickPlantSizeDialog(
+private fun PickPlantSizeDialog(
+    availablePlantSizes: List<PlantSize>,
+    selectedPlantSizeIndex: Int,
+    selectPlantSize: (index: Int) -> Unit,
     onDismiss: () -> Unit,
+    resultNavigator: ResultBackNavigator<PlantSize>,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -43,26 +70,13 @@ fun PickPlantSizeDialog(
                 style = MaterialTheme.typography.bodyLarge,
                 color = Neutralus900
             )
-            RadioOption(
-                selected = false,
-                onClick = { /*TODO*/ },
-                text = stringResource(R.string.small)
-            )
-            RadioOption(
-                selected = true,
-                onClick = { /*TODO*/ },
-                text = stringResource(R.string.medium)
-            )
-            RadioOption(
-                selected = false,
-                onClick = { /*TODO*/ },
-                text = stringResource(R.string.large)
-            )
-            RadioOption(
-                selected = false,
-                onClick = { /*TODO*/ },
-                text = stringResource(R.string.extra_large)
-            )
+            availablePlantSizes.forEachIndexed { index, plantSize ->
+                RadioOption(
+                    selected = index == selectedPlantSizeIndex,
+                    onClick = { selectPlantSize(index) },
+                    text = plantSize.toUIString()
+                )
+            }
             Spacer(modifier = Modifier.size(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -77,7 +91,7 @@ fun PickPlantSizeDialog(
                 Spacer(modifier = Modifier.size(8.dp))
                 SmallButton(
                     modifier = Modifier.weight(1f),
-                    onClick = { /*TODO*/ }
+                    onClick = { resultNavigator.navigateBack(availablePlantSizes[selectedPlantSizeIndex]) }
                 ) {
                     Text(text = stringResource(R.string.got_it))
                 }
@@ -108,6 +122,12 @@ private fun RadioOption(
 @Composable
 private fun PickPlantSizeDialogPreview() {
     ScreenSurface {
-        PickPlantSizeDialog(onDismiss = {})
+        PickPlantSizeDialog(
+            availablePlantSizes = PlantSize.entries.toList(),
+            selectedPlantSizeIndex = 1,
+            selectPlantSize = {},
+            onDismiss = {},
+            resultNavigator = EmptyResultBackNavigator()
+        )
     }
 }

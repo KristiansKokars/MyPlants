@@ -19,6 +19,7 @@
     <string name="create_a_plant">Create a Plant</string>
     <string name="plant_size">Plant Size</string>
     <string name="got_it">Got it</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="extra_large">Extra large</string>
     <string name="large">Large</string>
@@ -38,4 +39,7 @@
     <string name="ml">ml</string>
     <string name="plant_size_mandatory">Plant Size*</string>
     <string name="plant_name_mandatory">Plant name*</string>
+    <string name="change_image">Change Image</string>
+    <string name="water_amount">Water Amount</string>
+    <string name="description">Description</string>
 </resources>

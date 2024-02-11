@@ -22,7 +22,6 @@ fun MyPlantsTextField(
     label: @Composable () -> Unit,
     value: String,
     onValueChange: (String) -> Unit,
-    suffix: String? = null,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
     Column(modifier = modifier) {
@@ -31,7 +30,7 @@ fun MyPlantsTextField(
             Spacer(modifier = Modifier.size(8.dp))
             TextField(
                 modifier = modifier,
-                value = value + (suffix ?: ""),
+                value = value,
                 onValueChange = onValueChange,
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = Neutralus500,
