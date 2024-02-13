@@ -1,4 +1,4 @@
-package com.kristianskokars.myplants.feature.viewplants.presentation
+package com.kristianskokars.myplants.feature.viewplants.presentation.screen.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

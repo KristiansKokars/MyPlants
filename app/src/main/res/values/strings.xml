@@ -42,4 +42,10 @@
     <string name="change_image">Change Image</string>
     <string name="water_amount">Water Amount</string>
     <string name="description">Description</string>
+    <string name="mark_as_watered">Mark as watered</string>
+    <string name="edit_plant">Edit plant</string>
+    <string name="size">Size</string>
+    <string name="water">Water</string>
+    <string name="frequency">Frequency</string>
+    <string name="plant_created">Plant created successfully!</string>
 </resources>

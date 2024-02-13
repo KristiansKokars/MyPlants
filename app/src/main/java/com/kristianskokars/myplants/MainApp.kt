@@ -1,14 +1,7 @@
 package com.kristianskokars.myplants
 
 import android.app.Application
-import com.kristianskokars.myplants.di.AppContainer
+import dagger.hilt.android.HiltAndroidApp
 
-class MainApp : Application() {
-    lateinit var container: AppContainer
-        private set
-
-    override fun onCreate() {
-        super.onCreate()
-        container = AppContainer(applicationContext)
-    }
-}
+@HiltAndroidApp
+class MainApp : Application()

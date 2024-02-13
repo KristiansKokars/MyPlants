@@ -12,6 +12,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = Accent500,
     tertiary = Accent100,
     background = Neutralus0,
+    inverseSurface = Neutralus100,
 )
 
 @Composable

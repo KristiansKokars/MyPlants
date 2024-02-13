@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
@@ -26,10 +27,16 @@ fun ViewModel.launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.
 fun <T> ObserveAsEvents(flow: Flow<T>, onEvent: suspend (T) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(flow, lifecycleOwner.lifecycle) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            withContext(Dispatchers.Main.immediate) {
-                flow.collect(onEvent)
-            }
+        lifecycleOwner.launchImmediate {
+            flow.collect(onEvent)
         }
+    }
+}
+
+suspend fun LifecycleOwner.launchImmediate(
+    block: suspend () -> Unit,
+) = repeatOnLifecycle(Lifecycle.State.STARTED) {
+    withContext(Dispatchers.Main.immediate) {
+        block()
     }
 }

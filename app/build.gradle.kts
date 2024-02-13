@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.ksp)
     alias(libs.plugins.parcelize)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -65,6 +66,11 @@ dependencies {
     implementation(libs.compose.destinations)
     implementation(libs.compose.destinations.animations)
     ksp(libs.compose.destinations.ksp)
+
+    // Dependency Injection
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    ksp(libs.dagger.hilt.compiler)
 
     // Haze
     implementation(libs.haze)
