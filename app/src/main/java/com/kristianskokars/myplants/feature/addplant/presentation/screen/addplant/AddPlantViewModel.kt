@@ -1,5 +1,6 @@
 package com.kristianskokars.myplants.feature.addplant.presentation.screen.addplant
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -31,31 +32,51 @@ class AddPlantViewModel @Inject constructor(
     private val toaster: Toaster,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    var plantName by savedStateHandle.saveable { mutableStateOf("") }
-        private set
-    var plantDescription by savedStateHandle.saveable { mutableStateOf("") }
-        private set
-    var imageUrl by mutableStateOf<String?>(null)
-        private set
-    var selectedPlantDates by savedStateHandle.saveable { mutableStateOf(listOf(Day.MONDAY)) }
-        private set
-    var selectedPlantSize by savedStateHandle.saveable { mutableStateOf(PlantSize.MEDIUM) }
-        private set
-    var waterAmount by savedStateHandle.saveable { mutableIntStateOf(250) }
-        private set
-    var selectedTime by savedStateHandle.saveable(stateSaver = LocalTimeSaver) { mutableStateOf(LocalTime(8, 0, 0)) }
-        private set
-    val canCreatePlant by derivedStateOf { plantName.isNotEmpty() }
+    private var plantName by savedStateHandle.saveable { mutableStateOf("") }
+    private var plantDescription by savedStateHandle.saveable { mutableStateOf("") }
+    private var imageUrl by mutableStateOf<String?>(null)
+    private var selectedPlantDates by savedStateHandle.saveable { mutableStateOf(listOf(Day.MONDAY)) }
+    private var selectedPlantSize by savedStateHandle.saveable { mutableStateOf(PlantSize.MEDIUM) }
+    private var waterAmount by savedStateHandle.saveable { mutableIntStateOf(250) }
+    private var selectedTime by savedStateHandle.saveable(stateSaver = LocalTimeSaver) { mutableStateOf(LocalTime(8, 0, 0)) }
+    private val canCreatePlant by derivedStateOf { plantName.isNotEmpty() }
 
-    fun onPlantNameChange(value: String) {
+    @Composable
+    fun state(): AddPlantState {
+        return AddPlantState(
+            imageUrl = imageUrl,
+            selectedTime = selectedTime,
+            plantName = plantName,
+            plantDescription = plantDescription,
+            canCreatePlant = canCreatePlant,
+            selectedDates = selectedPlantDates,
+            selectedPlantSize = selectedPlantSize,
+            waterAmount = waterAmount
+        )
+    }
+
+    fun onEvent(event: AddPlantEvent) {
+        when (event) {
+            AddPlantEvent.CreatePlant -> createPlant()
+            is AddPlantEvent.OnPlantDescriptionChange -> onPlantDescriptionChange(event.newDescription)
+            is AddPlantEvent.OnPlantNameChange -> onPlantNameChange(event.newName)
+            is AddPlantEvent.OnSelectTime -> onSelectTime(event.newTime)
+            is AddPlantEvent.OnAddPhoto -> onAddPhoto(event.newPhoto)
+            is AddPlantEvent.OnPlantSizeSelected -> onPlantSizeSelected(event.newPlantSize)
+            is AddPlantEvent.OnWaterAmountSelected -> onWaterAmountSelected(event.newWaterAmount)
+            is AddPlantEvent.OnWateringDatesSelected -> onWateringDatesSelected(event.newDates)
+        }
+    }
+
+    private fun onPlantNameChange(value: String) {
         plantName = value
     }
 
-    fun onPlantDescriptionChange(value: String) {
+    private fun onPlantDescriptionChange(value: String) {
         plantDescription = value
     }
 
-    fun createPlant() {
+    private fun createPlant() {
         if (!canCreatePlant) return
 
         launch {
@@ -73,15 +94,15 @@ class AddPlantViewModel @Inject constructor(
         }
     }
 
-    fun addPhoto(url: String) {
+    private fun onAddPhoto(url: String) {
         imageUrl = url
     }
 
-    fun onSelectTime(time: LocalTime) {
+    private fun onSelectTime(time: LocalTime) {
         selectedTime = time
     }
 
-    fun onWateringDatesSelected(dates: List<Day>) {
+    private fun onWateringDatesSelected(dates: List<Day>) {
         selectedPlantDates = if (dates.contains(Day.EVERYDAY)) {
             listOf(Day.EVERYDAY)
         } else {
@@ -89,11 +110,11 @@ class AddPlantViewModel @Inject constructor(
         }
     }
 
-    fun onPlantSizeSelected(plantSize: PlantSize) {
+    private fun onPlantSizeSelected(plantSize: PlantSize) {
         selectedPlantSize = plantSize
     }
 
-    fun onWaterAmountSelected(newWaterAmount: Int) {
+    private fun onWaterAmountSelected(newWaterAmount: Int) {
         waterAmount = newWaterAmount
     }
 }

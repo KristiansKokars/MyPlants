@@ -69,12 +69,13 @@ fun AddPlantScreen(
     pickPlantSizeResultRecipient: ResultRecipient<PickPlantSizeDialogDestinationDestination, PlantSize>,
     pickWaterAmountResultRecipient: ResultRecipient<PickWaterAmountDialogDestination, Int>,
 ) {
+    val state = viewModel.state()
     val uploadImage = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             if (uri == null) return@rememberLauncherForActivityResult
 
-            viewModel.addPhoto(uri.toString())
+            viewModel.onEvent(AddPlantEvent.OnAddPhoto(uri.toString()))
         }
     )
     val onAddImage = remember { { uploadImage.launch("image/*")} }
@@ -83,7 +84,7 @@ fun AddPlantScreen(
         when (result) {
             NavResult.Canceled -> { /* Ignored */ }
             is NavResult.Value -> {
-                viewModel.onWateringDatesSelected(result.value.list)
+                viewModel.onEvent(AddPlantEvent.OnWateringDatesSelected(result.value.list))
             }
         }
     }
@@ -91,7 +92,7 @@ fun AddPlantScreen(
         when (result) {
             NavResult.Canceled -> { /* Ignored */ }
             is NavResult.Value -> {
-                viewModel.onPlantSizeSelected(result.value)
+                viewModel.onEvent(AddPlantEvent.OnPlantSizeSelected(result.value))
             }
         }
     }
@@ -99,44 +100,24 @@ fun AddPlantScreen(
         when (result) {
             NavResult.Canceled -> { /* Ignored */ }
             is NavResult.Value -> {
-                viewModel.onWaterAmountSelected(result.value)
+                viewModel.onEvent(AddPlantEvent.OnWaterAmountSelected(result.value))
             }
         }
     }
 
     AddPlantScreenContent(
         navigator = navigator,
-        plantName = viewModel.plantName,
-        plantDescription = viewModel.plantDescription,
-        imageUrl = viewModel.imageUrl,
-        canCreatePlant = viewModel.canCreatePlant,
-        onPlantNameChange = viewModel::onPlantNameChange,
-        onPlantDescriptionChange = viewModel::onPlantDescriptionChange,
-        onCreatePlant = viewModel::createPlant,
-        selectedDates = viewModel.selectedPlantDates,
-        selectedPlantSize = viewModel.selectedPlantSize,
-        selectedTime = viewModel.selectedTime,
-        onSelectTime = viewModel::onSelectTime,
+        state = state,
+        onEvent = viewModel::onEvent,
         onChangeImageClick = onAddImage,
-        waterAmount = viewModel.waterAmount
     )
 }
 
 @Composable
 private fun AddPlantScreenContent(
     navigator: DestinationsNavigator,
-    imageUrl: String?,
-    selectedTime: LocalTime,
-    plantName: String,
-    plantDescription: String,
-    canCreatePlant: Boolean,
-    selectedDates: List<Day>,
-    selectedPlantSize: PlantSize,
-    waterAmount: Int,
-    onSelectTime: (LocalTime) -> Unit,
-    onPlantNameChange: (String) -> Unit,
-    onPlantDescriptionChange: (String) -> Unit,
-    onCreatePlant: () -> Unit,
+    state: AddPlantState,
+    onEvent: (AddPlantEvent) -> Unit,
     onChangeImageClick: () -> Unit,
 ) {
     Column(
@@ -146,24 +127,15 @@ private fun AddPlantScreenContent(
     ) {
         ImageSection(
             modifier = Modifier.height(344.dp),
-            imageUrl = imageUrl,
+            imageUrl = state.imageUrl,
             onGoBack = navigator::navigateUp,
             onChangeImageClick = onChangeImageClick
         )
         Spacer(modifier = Modifier.size(16.dp))
         PlantCreationForms(
             navigator = navigator,
-            selectedTime = selectedTime,
-            plantName = plantName,
-            plantDescription = plantDescription,
-            canCreatePlant = canCreatePlant,
-            selectedDates = selectedDates,
-            selectedPlantSize = selectedPlantSize,
-            waterAmount = waterAmount,
-            onPlantNameChange = onPlantNameChange,
-            onPlantDescriptionChange = onPlantDescriptionChange,
-            onCreatePlant = onCreatePlant,
-            onSelectTime = onSelectTime
+            state = state,
+            onEvent = onEvent,
         )
     }
 }
@@ -179,7 +151,10 @@ fun ImageSection(
         if (imageUrl == null) {
             PlantsWallpaper()
             Image(
-                modifier = Modifier.zIndex(-1f).fillMaxSize(0.5f).align(Alignment.Center),
+                modifier = Modifier
+                    .zIndex(-1f)
+                    .fillMaxSize(0.5f)
+                    .align(Alignment.Center),
                 painter = painterResource(id = R.drawable.ic_placeholder_plant),
                 contentDescription = stringResource(R.string.plant_image)
             )
@@ -233,23 +208,14 @@ fun ImageSection(
 @Composable
 private fun PlantCreationForms(
     navigator: DestinationsNavigator,
-    selectedTime: LocalTime,
-    plantName: String,
-    plantDescription: String,
-    canCreatePlant: Boolean,
-    selectedDates: List<Day>,
-    selectedPlantSize: PlantSize,
-    waterAmount: Int,
-    onPlantNameChange: (String) -> Unit,
-    onPlantDescriptionChange: (String) -> Unit,
-    onCreatePlant: () -> Unit,
-    onSelectTime: (LocalTime) -> Unit
+    state: AddPlantState,
+    onEvent: (AddPlantEvent) -> Unit
 ) {
     val selectTimeDialogState = rememberMaterialDialogState()
     TimePickerDialog(
-        initialTime = selectedTime,
+        initialTime = state.selectedTime,
         dialogState = selectTimeDialogState,
-        onTimeSelected = onSelectTime
+        onTimeSelected = { onEvent(AddPlantEvent.OnSelectTime(it)) }
     )
 
     Column(
@@ -265,8 +231,8 @@ private fun PlantCreationForms(
         MyPlantsTextField(
             modifier = Modifier.fillMaxWidth(),
             label = { Text(text = stringResource(R.string.plant_name_mandatory) )},
-            value = plantName,
-            onValueChange = onPlantNameChange
+            value = state.plantName,
+            onValueChange = { onEvent(AddPlantEvent.OnPlantNameChange(it)) }
         )
         Row(
             modifier = Modifier
@@ -278,13 +244,13 @@ private fun PlantCreationForms(
                 modifier = Modifier.weight(1f),
                 onClick = { navigator.navigate(PickWateringDatesDialogDestinationDestination) },
                 label = { Text(text = stringResource(id = R.string.dates))},
-                text = { Text(text = selectedDates.toDayText()) }
+                text = { Text(text = state.selectedDates.toDayText()) }
             )
             Combobox(
                 modifier = Modifier.weight(1f),
                 onClick = selectTimeDialogState::show,
                 label = { Text(text = stringResource(R.string.time))},
-                text = { Text(text = selectedTime.toString()) }
+                text = { Text(text = state.selectedTime.toString()) }
             )
         }
         Row(
@@ -297,21 +263,21 @@ private fun PlantCreationForms(
                 modifier = Modifier.weight(1f),
                 onClick = { navigator.navigate(PickWaterAmountDialogDestination) },
                 label = { Text(text = stringResource(R.string.the_amount_of_water_mandatory)) },
-                text = { Text(text = "$waterAmount${stringResource(R.string.ml)}") }
+                text = { Text(text = "${state.waterAmount}${stringResource(R.string.ml)}") }
             )
             Combobox(
                 modifier = Modifier.weight(1f),
                 onClick = { navigator.navigate(PickPlantSizeDialogDestinationDestination) },
                 label = { Text(text = stringResource(R.string.plant_size_mandatory)) },
-                text = { Text(text = selectedPlantSize.toUIString()) }
+                text = { Text(text = state.selectedPlantSize.toUIString()) }
             )
         }
         Column(modifier = Modifier.fillMaxWidth()) {
             MyPlantsTextField(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = stringResource(R.string.description)) },
-                value = plantDescription,
-                onValueChange = onPlantDescriptionChange
+                value = state.plantDescription,
+                onValueChange = { onEvent(AddPlantEvent.OnPlantDescriptionChange(it)) }
             )
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -320,8 +286,8 @@ private fun PlantCreationForms(
                 .background(Neutralus0)
                 .padding(top = 4.dp, bottom = 16.dp)
                 .fillMaxWidth(),
-            enabled = canCreatePlant,
-            onClick = onCreatePlant
+            enabled = state.canCreatePlant,
+            onClick = { onEvent(AddPlantEvent.CreatePlant) }
         ) {
             Text(text = stringResource(R.string.create_a_plant))
         }
@@ -344,19 +310,18 @@ fun AddPlantScreenPreview() {
     MyPlantsTheme {
         AddPlantScreenContent(
             navigator = EmptyDestinationsNavigator,
-            plantName = "Montera",
-            plantDescription = "Short Description",
-            imageUrl = null,
-            canCreatePlant = true,
-            onPlantDescriptionChange = {},
-            onPlantNameChange = {},
-            onCreatePlant = {},
-            onChangeImageClick = {},
-            selectedDates = listOf(Day.MONDAY),
-            selectedPlantSize = PlantSize.MEDIUM,
-            selectedTime = LocalTime(8, 0, 0),
-            onSelectTime = {},
-            waterAmount = 250
+            state = AddPlantState(
+                plantName = "Montera",
+                plantDescription = "Short Description",
+                imageUrl = null,
+                canCreatePlant = true,
+                selectedDates = listOf(Day.MONDAY),
+                selectedPlantSize = PlantSize.MEDIUM,
+                selectedTime = LocalTime(8, 0, 0),
+                waterAmount = 250
+            ),
+            onEvent = {},
+            onChangeImageClick = {}
         )
     }
 }
