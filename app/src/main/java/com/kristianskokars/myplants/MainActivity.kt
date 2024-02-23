@@ -45,8 +45,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val engine = rememberAnimatedNavHostEngine(
                 rootDefaultAnimations = RootNavGraphDefaultAnimations(
-                    enterTransition = { fadeIn(animationSpec = tween(200)) },
-                    exitTransition = { fadeOut(animationSpec = tween(200)) }
+                    enterTransition = { fadeIn(animationSpec = tween(300)) },
+                    exitTransition = { fadeOut(animationSpec = tween(300)) },
+                    popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                    popExitTransition = { fadeOut(animationSpec = tween(300)) },
                 )
             )
             val navController = engine.rememberNavController()
