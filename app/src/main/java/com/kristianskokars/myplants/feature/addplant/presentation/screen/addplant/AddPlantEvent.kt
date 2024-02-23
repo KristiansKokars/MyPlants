@@ -13,4 +13,5 @@ sealed class AddPlantEvent {
     data class OnPlantSizeSelected(val newPlantSize: PlantSize) : AddPlantEvent()
     data class OnWaterAmountSelected(val newWaterAmount: Int) : AddPlantEvent()
     data object CreatePlant : AddPlantEvent()
+    data object EditPlant : AddPlantEvent()
 }

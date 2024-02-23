@@ -6,20 +6,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import com.kristianskokars.myplants.R
+import com.kristianskokars.myplants.core.data.DeepLinks
+import com.kristianskokars.myplants.core.data.local.PlantWateringScheduler
 import com.kristianskokars.myplants.core.data.local.db.PlantDao
+import com.kristianskokars.myplants.core.data.local.file.FileStorage
 import com.kristianskokars.myplants.core.data.model.Day
 import com.kristianskokars.myplants.core.data.model.Plant
 import com.kristianskokars.myplants.core.data.model.PlantSize
+import com.kristianskokars.myplants.feature.navArgs
 import com.kristianskokars.myplants.lib.LocalTimeSaver
 import com.kristianskokars.myplants.lib.Navigator
 import com.kristianskokars.myplants.lib.Toaster
 import com.kristianskokars.myplants.lib.UIText
 import com.kristianskokars.myplants.lib.launch
+import com.kristianskokars.myplants.lib.randomID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.datetime.LocalTime
 import javax.inject.Inject
@@ -28,10 +34,13 @@ import javax.inject.Inject
 @HiltViewModel
 class AddPlantViewModel @Inject constructor(
     private val plantDao: PlantDao,
+    private val plantWateringScheduler: PlantWateringScheduler,
+    private val fileStorage: FileStorage,
     private val navigator: Navigator,
     private val toaster: Toaster,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+    private val navArgs = savedStateHandle.navArgs<AddPlantNavArgs>()
     private var plantName by savedStateHandle.saveable { mutableStateOf("") }
     private var plantDescription by savedStateHandle.saveable { mutableStateOf("") }
     private var imageUrl by mutableStateOf<String?>(null)
@@ -40,7 +49,22 @@ class AddPlantViewModel @Inject constructor(
     private var waterAmount by savedStateHandle.saveable { mutableIntStateOf(250) }
     private var selectedTime by savedStateHandle.saveable(stateSaver = LocalTimeSaver) { mutableStateOf(LocalTime(8, 0, 0)) }
     private val canCreatePlant by derivedStateOf { plantName.isNotEmpty() }
+    private val isEditingExistingPlant = navArgs.plantId != null
 
+    init {
+        launch {
+            if (navArgs.plantId != null) {
+                val plant = plantDao.getPlantSingle(navArgs.plantId)
+                plantName = plant.name
+                plantDescription = plant.description
+                imageUrl = plant.pictureUrl
+                selectedPlantDates = plant.wateringDates
+                selectedPlantSize = plant.size
+                waterAmount = plant.waterInMilliliters
+                selectedTime = LocalTime.fromMillisecondOfDay(plant.wateringTimeInMillis)
+            }
+        }
+    }
     @Composable
     fun state(): AddPlantState {
         return AddPlantState(
@@ -51,13 +75,15 @@ class AddPlantViewModel @Inject constructor(
             canCreatePlant = canCreatePlant,
             selectedDates = selectedPlantDates,
             selectedPlantSize = selectedPlantSize,
-            waterAmount = waterAmount
+            waterAmount = waterAmount,
+            isEditingExistingPlant = isEditingExistingPlant
         )
     }
 
     fun onEvent(event: AddPlantEvent) {
         when (event) {
             AddPlantEvent.CreatePlant -> createPlant()
+            AddPlantEvent.EditPlant -> editPlant()
             is AddPlantEvent.OnPlantDescriptionChange -> onPlantDescriptionChange(event.newDescription)
             is AddPlantEvent.OnPlantNameChange -> onPlantNameChange(event.newName)
             is AddPlantEvent.OnSelectTime -> onSelectTime(event.newTime)
@@ -76,17 +102,68 @@ class AddPlantViewModel @Inject constructor(
         plantDescription = value
     }
 
+    private fun editPlant() {
+        if (!canCreatePlant) return
+        val plantId = navArgs.plantId ?: return
+
+        launch {
+            // TODO: delete old image if it is not the same
+            val url = imageUrl?.let { imageUrl ->
+                fileStorage.saveFileToInternalAppStorage(imageUrl.toUri(), plantName)
+            }
+            plantDao.insertPlant(
+                Plant(
+                    id = plantId,
+                    name = plantName,
+                    description = plantDescription,
+                    waterInMilliliters = waterAmount,
+                    wateringTimeInMillis = selectedTime.toMillisecondOfDay(),
+                    wateringDates = selectedPlantDates,
+                    pictureUrl = url,
+                    size = selectedPlantSize
+                )
+            )
+            plantWateringScheduler.scheduleWatering(
+                days = selectedPlantDates,
+                time = selectedTime,
+                plantId = plantId,
+                extras = mapOf(
+                    DeepLinks.Type.PLANT.toPair(),
+                    DeepLinks.Extra.NAME.toString() to plantName
+                )
+            )
+            navigator.navigate(Navigator.Action.GoBack)
+            toaster.show(Toaster.Message(UIText.StringResource(R.string.plant_edited)))
+        }
+    }
+
     private fun createPlant() {
         if (!canCreatePlant) return
 
         launch {
+            val url = imageUrl?.let { imageUrl ->
+                fileStorage.saveFileToInternalAppStorage(imageUrl.toUri(), plantName)
+            }
+            val plantId = randomID()
             plantDao.insertPlant(
                 Plant(
+                    id = plantId,
                     name = plantName,
                     description = plantDescription,
                     waterInMilliliters = waterAmount,
+                    wateringTimeInMillis = selectedTime.toMillisecondOfDay(),
                     wateringDates = selectedPlantDates,
-                    pictureUrl = imageUrl
+                    pictureUrl = url,
+                    size = selectedPlantSize
+                )
+            )
+            plantWateringScheduler.scheduleWatering(
+                days = selectedPlantDates,
+                time = selectedTime,
+                plantId = plantId,
+                extras = mapOf(
+                    DeepLinks.Type.PLANT.toPair(),
+                    DeepLinks.Extra.NAME.toString() to plantName
                 )
             )
             navigator.navigate(Navigator.Action.GoBack)

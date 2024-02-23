@@ -60,8 +60,12 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.datetime.LocalTime
 
+data class AddPlantNavArgs(
+    val plantId: String? = null
+)
+
 @Composable
-@Destination
+@Destination(navArgsDelegate = AddPlantNavArgs::class)
 fun AddPlantScreen(
     viewModel: AddPlantViewModel = hiltViewModel(),
     navigator: DestinationsNavigator,
@@ -69,7 +73,6 @@ fun AddPlantScreen(
     pickPlantSizeResultRecipient: ResultRecipient<PickPlantSizeDialogDestinationDestination, PlantSize>,
     pickWaterAmountResultRecipient: ResultRecipient<PickWaterAmountDialogDestination, Int>,
 ) {
-    val state = viewModel.state()
     val uploadImage = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
@@ -107,7 +110,7 @@ fun AddPlantScreen(
 
     AddPlantScreenContent(
         navigator = navigator,
-        state = state,
+        state = viewModel.state(),
         onEvent = viewModel::onEvent,
         onChangeImageClick = onAddImage,
     )
@@ -287,9 +290,15 @@ private fun PlantCreationForms(
                 .padding(top = 4.dp, bottom = 16.dp)
                 .fillMaxWidth(),
             enabled = state.canCreatePlant,
-            onClick = { onEvent(AddPlantEvent.CreatePlant) }
+            onClick = {
+                onEvent(if (state.isEditingExistingPlant) AddPlantEvent.EditPlant else AddPlantEvent.CreatePlant)
+            }
         ) {
-            Text(text = stringResource(R.string.create_a_plant))
+            if (state.isEditingExistingPlant) {
+                Text(text = stringResource(R.string.save_changes))
+            } else {
+                Text(text = stringResource(R.string.create_a_plant))
+            }
         }
     }
 }
@@ -318,7 +327,8 @@ fun AddPlantScreenPreview() {
                 selectedDates = listOf(Day.MONDAY),
                 selectedPlantSize = PlantSize.MEDIUM,
                 selectedTime = LocalTime(8, 0, 0),
-                waterAmount = 250
+                waterAmount = 250,
+                isEditingExistingPlant = false
             ),
             onEvent = {},
             onChangeImageClick = {}

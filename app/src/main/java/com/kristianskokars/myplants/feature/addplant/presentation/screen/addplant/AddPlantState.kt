@@ -13,4 +13,5 @@ data class AddPlantState(
     val selectedDates: List<Day>,
     val selectedPlantSize: PlantSize,
     val waterAmount: Int,
+    val isEditingExistingPlant: Boolean,
 )
