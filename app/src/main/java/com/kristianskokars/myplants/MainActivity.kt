@@ -76,7 +76,9 @@ class MainActivity : ComponentActivity() {
 
             MyPlantsTheme {
                 Scaffold(
-                    snackbarHost = { SnackbarHost(snackbarHostState) }
+                    snackbarHost = {
+                        SnackbarHost(snackbarHostState)
+                    }
                 ) {
                     DestinationsNavHost(
                         modifier = Modifier.fillMaxSize(),
