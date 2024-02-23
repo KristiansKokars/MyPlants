@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.androidx.core.splashscreen)
 
     // Navigation
     implementation(libs.compose.destinations)
