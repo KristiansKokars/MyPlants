@@ -48,7 +48,7 @@ val Typography = Typography(
     labelLarge = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
+        fontSize = 12.sp,
         lineHeight = 20.sp,
         color = Neutralus500
     ),
