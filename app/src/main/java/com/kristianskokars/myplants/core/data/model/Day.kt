@@ -21,6 +21,17 @@ enum class Day : Parcelable {
         SUNDAY -> stringResource(R.string.sunday)
         EVERYDAY -> stringResource(R.string.everyday)
     }
+
+    fun toDayNumber() = when (this) {
+        MONDAY -> 1
+        TUESDAY -> 2
+        WEDNESDAY -> 3
+        THURSDAY -> 4
+        FRIDAY -> 5
+        SATURDAY -> 6
+        SUNDAY -> 7
+        EVERYDAY -> -1
+    }
 }
 
 // Compose destinations does not allow to use List<Day> directly as a result type

@@ -48,4 +48,20 @@
     <string name="water">Water</string>
     <string name="frequency">Frequency</string>
     <string name="plant_created">Plant created successfully!</string>
+    <string name="plant_edited">Plant edited successfully!</string>
+    <string name="view_plant_details">View plant %1$s details</string>
+    <string name="notifications">Notifications</string>
+    <string name="all_notifications">All Notifications</string>
+    <string name="delete_plant">Delete plant %1$s</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="do_you_really_want_to_delete_plant">Do you really want to delete the \"%1$s\"? This process cannot be undone.</string>
+    <string name="watering_times_week">%1$s times/week</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="go_to_the_plant">Go to the plant</string>
+    <string name="plant_reminder_notification_title">%1$s plant needs water!</string>
+    <string name="plant_reminder_notification_text">Click here for more information.</string>
+    <string name="dont_forget_to_water_your_plant">Don\'t forget to water your \"%1$s\" today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="remember_water_notification_text">Don\'t forget to water your \"%1$s\" today</string>
+    <string name="daily_plant_notification">Daily plant notification</string>
 </resources>

@@ -21,16 +21,21 @@ import com.kristianskokars.myplants.core.presentation.theme.Neutralus500
 import com.kristianskokars.myplants.core.presentation.theme.Red
 
 @Composable
-fun NotificationButton() {
+fun NotificationButton(
+    hasNotifications: Boolean,
+    onClick: () -> Unit,
+) {
     Box {
-        Box(
-            modifier = Modifier
-                .padding(top = 6.dp, end = 8.dp)
-                .zIndex(1f)
-                .background(color = Red, shape = CircleShape)
-                .size(6.dp)
-                .align(Alignment.TopEnd)
-        )
+        if (hasNotifications) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 6.dp, end = 8.dp)
+                    .zIndex(1f)
+                    .background(color = Red, shape = CircleShape)
+                    .size(6.dp)
+                    .align(Alignment.TopEnd)
+            )
+        }
         IconButton(
             colors = IconButtonColors(
                 containerColor = Neutralus100,
@@ -38,7 +43,7 @@ fun NotificationButton() {
                 disabledContainerColor = Neutralus100,
                 disabledContentColor = Neutralus500
             ),
-            onClick = { /*TODO*/ }
+            onClick = onClick
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_notification),
