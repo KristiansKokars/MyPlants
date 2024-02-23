@@ -1,7 +1,6 @@
 package com.kristianskokars.myplants.feature.viewplants.presentation.screen.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -22,23 +20,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kristianskokars.myplants.R
-import com.kristianskokars.myplants.core.data.model.Plant
 import com.kristianskokars.myplants.core.presentation.components.BigButton
+import com.kristianskokars.myplants.core.presentation.components.LinearWhiteFadeOut
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTab
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTabRow
 import com.kristianskokars.myplants.core.presentation.components.NotificationButton
@@ -49,39 +45,70 @@ import com.kristianskokars.myplants.core.presentation.theme.Neutralus100
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus300
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
 import com.kristianskokars.myplants.feature.destinations.AddPlantScreenDestination
+import com.kristianskokars.myplants.feature.destinations.DeletePlantDialogDestinationDestination
+import com.kristianskokars.myplants.feature.destinations.NotificationsScreenDestination
+import com.kristianskokars.myplants.feature.destinations.PlantDetailsScreenDestination
 import com.kristianskokars.myplants.feature.viewplants.presentation.components.PlantCard
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 
 @Composable
 @Destination
 @RootNavGraph(start = true)
 fun PlantHomeScreen(
-    navigator: DestinationsNavigator
+    viewModel: PlantHomeViewModel = hiltViewModel(),
+    navigator: DestinationsNavigator,
+    resultRecipient: ResultRecipient<DeletePlantDialogDestinationDestination, DeletePlantResult>
 ) {
-    PlantHomeScreenContent(navigator = navigator)
+    resultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> { /* Ignored */ }
+            is NavResult.Value -> {
+                if (result.value.shouldDelete) {
+                    viewModel.onEvent(PlantHomeEvent.DeletePlant(result.value.plantId))
+                }
+            }
+        }
+    }
+
+    PlantHomeScreenContent(
+        navigator = navigator,
+        state = viewModel.state(),
+        onEvent = viewModel::onEvent
+    )
 }
 
 @Composable
 private fun PlantHomeScreenContent(
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    state: PlantHomeState,
+    onEvent: (PlantHomeEvent) -> Unit,
 ) {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val plants = remember { emptyList<Plant>() }
+    val selectedTabIndex by remember(state.plantFilter) {
+        derivedStateOf {
+            when (state.plantFilter) {
+                PlantFilter.UPCOMING -> 0
+                PlantFilter.FORGOT_TO_WATER -> 1
+                PlantFilter.HISTORY -> 2
+            }
+        }
+    }
 
     ScreenSurface {
         Scaffold(
             containerColor = Color.Transparent,
             floatingActionButton = {
-                if (plants.isNotEmpty()) {
+                if (state.plants.isNotEmpty()) {
                     FloatingActionButton(
                         modifier = Modifier.padding(bottom = 64.dp),
                         elevation = FloatingActionButtonDefaults.loweredElevation(),
                         containerColor = Accent500,
                         contentColor = Neutralus100,
-                        onClick = { navigator.navigate(AddPlantScreenDestination)}
+                        onClick = { navigator.navigate(AddPlantScreenDestination())}
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_add),
@@ -109,7 +136,10 @@ private fun PlantHomeScreenContent(
                             text = stringResource(R.string.lets_care_my_plants_title),
                             style = MaterialTheme.typography.titleLarge
                         )
-                        NotificationButton()
+                        NotificationButton(
+                            hasNotifications = state.hasUnseenNotifications,
+                            onClick = { navigator.navigate(NotificationsScreenDestination)}
+                        )
                     }
                     Spacer(modifier = Modifier.size(16.dp))
                     MyPlantsTabRow(
@@ -118,7 +148,7 @@ private fun PlantHomeScreenContent(
                     ) {
                         MyPlantsTab(
                             selected = selectedTabIndex == 0,
-                            onClick = { selectedTabIndex = 0 },
+                            onClick = { onEvent(PlantHomeEvent.OnPlantFilterChange(PlantFilter.UPCOMING)) },
                             text = {
                                 Text(
                                     text = stringResource(R.string.upcoming),
@@ -129,7 +159,7 @@ private fun PlantHomeScreenContent(
                         )
                         MyPlantsTab(
                             selected = selectedTabIndex == 1,
-                            onClick = { selectedTabIndex = 1 },
+                            onClick = { onEvent(PlantHomeEvent.OnPlantFilterChange(PlantFilter.FORGOT_TO_WATER)) },
                             text = {
                                 Text(
                                     text = stringResource(R.string.forgot_to_water),
@@ -140,7 +170,7 @@ private fun PlantHomeScreenContent(
                         )
                         MyPlantsTab(
                             selected = selectedTabIndex == 2,
-                            onClick = { selectedTabIndex = 2 },
+                            onClick = { onEvent(PlantHomeEvent.OnPlantFilterChange(PlantFilter.HISTORY)) },
                             text = {
                                 Text(
                                     text = stringResource(R.string.history),
@@ -151,19 +181,30 @@ private fun PlantHomeScreenContent(
                         )
                     }
                     Spacer(modifier = Modifier.size(20.dp))
-                    if (plants.isEmpty()) {
-                        NoPlantsInList(onAddYourFirstPlantClick = { navigator.navigate(AddPlantScreenDestination)} )
+                    if (state.plants.isEmpty()) {
+                        NoPlantsInList(onAddYourFirstPlantClick = { navigator.navigate(AddPlantScreenDestination())} )
                     } else {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(plants, key = { it.id }) {
-                                PlantCard(it)
-                            }
-                            item {
-                                Spacer(modifier = Modifier.size(64.dp))
+                            items(state.plants, key = { it.id }) { plant ->
+                                PlantCard(
+                                    plant = plant,
+                                    onClick = { navigator.navigate(PlantDetailsScreenDestination(id = plant.id))},
+                                    onLongClick = {
+                                        navigator.navigate(
+                                            DeletePlantDialogDestinationDestination(
+                                                plantId = plant.id,
+                                                plantName = plant.name,
+                                            )
+                                        )
+                                    },
+                                    onMarkPlantAsWatered = {
+                                        onEvent(PlantHomeEvent.MarkPlantAsWatered(plant.id))
+                                    }
+                                )
                             }
                         }
                     }
@@ -201,27 +242,14 @@ private fun NoPlantsInList(
     }
 }
 
-@Composable
-private fun LinearWhiteFadeOut(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .background(
-                Brush.linearGradient(
-                    0.0f to Color.Transparent,
-                    0.75f to Color.White,
-                    start = Offset(0.0f, 0.0f),
-                    end = Offset(0.0f, Offset.Infinite.y)
-                )
-            )
-            .fillMaxWidth()
-            .height(64.dp)
-    )
-}
-
 @Preview
 @Composable
 private fun PlantHomeScreenPreview() {
     MyPlantsTheme {
-        PlantHomeScreenContent(navigator = EmptyDestinationsNavigator)
+        PlantHomeScreenContent(
+            navigator = EmptyDestinationsNavigator,
+            state = PlantHomeState(),
+            onEvent = {}
+        )
     }
 }

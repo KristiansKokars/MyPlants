@@ -1,12 +1,15 @@
 package com.kristianskokars.myplants.feature.viewplants.presentation.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,12 +24,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import coil.compose.AsyncImage
 import com.kristianskokars.myplants.R
 import com.kristianskokars.myplants.core.data.model.Plant
+import com.kristianskokars.myplants.core.data.model.isWatered
+import com.kristianskokars.myplants.core.data.model.nextWateringDateInMillis
 import com.kristianskokars.myplants.core.presentation.components.styledHazeChild
 import com.kristianskokars.myplants.core.presentation.theme.Accent100
 import com.kristianskokars.myplants.core.presentation.theme.Accent500
@@ -35,15 +44,29 @@ import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
 import com.kristianskokars.myplants.core.presentation.theme.OtherGreen100
 import com.kristianskokars.myplants.core.presentation.theme.TransparentGray
+import com.kristianskokars.myplants.lib.toDateLabel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PlantCard(plant: Plant) {
+fun PlantCard(
+    plant: Plant,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onMarkPlantAsWatered: () -> Unit,
+) {
     val hazeState = remember { HazeState() }
 
     Column(
         modifier = Modifier
+            .combinedClickable(
+                role = Role.Button,
+                onClickLabel = stringResource(R.string.view_plant_details, plant.name),
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = stringResource(R.string.delete_plant, plant.name)
+            )
             .background(color = OtherGreen100, shape = RoundedCornerShape(4.dp))
             .border(1.dp, color = GrayBorder, shape = RoundedCornerShape(4.dp))
             .height(256.dp),
@@ -76,16 +99,27 @@ fun PlantCard(plant: Plant) {
                         .styledHazeChild(state = hazeState)
                         .background(TransparentGray, shape = RoundedCornerShape(4.dp))
                         .padding(4.dp),
-                    text = stringResource(R.string.today),
+                    text = plant.nextWateringDateInMillis().toDateLabel(),
                     style = MaterialTheme.typography.labelMedium,
                     color = Neutralus0
                 )
             }
-            Image(
-                modifier = Modifier.haze(state = hazeState),
-                painter = painterResource(id = R.drawable.ic_placeholder_plant),
-                contentDescription = null
-            )
+            if (plant.pictureUrl == null) {
+                Image(
+                    modifier = Modifier.haze(state = hazeState),
+                    painter = painterResource(id = R.drawable.ic_placeholder_plant),
+                    contentDescription = null
+                )
+            } else {
+                AsyncImage(
+                    modifier = Modifier
+                        .haze(state = hazeState)
+                        .fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    model = plant.pictureUrl,
+                    contentDescription = null
+                )
+            }
         }
         Row(
             modifier = Modifier
@@ -96,7 +130,11 @@ fun PlantCard(plant: Plant) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column {
+            Column(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .weight(1f)
+            ) {
                 Text(
                     text = plant.name,
                     style = MaterialTheme.typography.bodyMedium,
@@ -104,16 +142,24 @@ fun PlantCard(plant: Plant) {
                 )
                 Text(
                     text = plant.description,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-            WateringCheckbox(isWatered = true)
+            WateringCheckbox(
+                isWatered = plant.isWatered(),
+                onMarkPlantAsWatered = onMarkPlantAsWatered,
+            )
         }
     }
 }
 
 @Composable
-private fun WateringCheckbox(isWatered: Boolean) {
+private fun WateringCheckbox(
+    isWatered: Boolean,
+    onMarkPlantAsWatered: () -> Unit,
+) {
     FilledIconButton(
         modifier = Modifier.size(24.dp),
         colors = IconButtonDefaults.filledIconButtonColors(
@@ -124,7 +170,7 @@ private fun WateringCheckbox(isWatered: Boolean) {
         ),
         enabled = !isWatered,
         shape = RoundedCornerShape(4.dp),
-        onClick = { /*TODO*/ }
+        onClick = onMarkPlantAsWatered
     ) {
         if (isWatered) {
             Icon(
