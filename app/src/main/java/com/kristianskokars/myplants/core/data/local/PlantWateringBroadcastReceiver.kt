@@ -57,7 +57,7 @@ class PlantWateringBroadcastReceiver : BroadcastReceiver() {
         val notification = NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
             .setContentTitle(contentTitle)
             .setContentText(contentText)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_app_logo)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(deepLinkPendingIntent)
             .build()
