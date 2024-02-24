@@ -263,7 +263,8 @@ private fun PlantDetailsScreenPreview() {
                     wateringDates = listOf(Day.EVERYDAY),
                     pictureUrl = null,
                     size = PlantSize.MEDIUM,
-                    wateringTimeInMillis = 0
+                    wateringTimeInMillis = 0,
+                    createdAtInMillis = 0L
                 )
             ),
             navigator = EmptyDestinationsNavigator

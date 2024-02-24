@@ -11,6 +11,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.datetime.Clock
 import javax.inject.Singleton
 
 @Module
@@ -35,4 +36,8 @@ object DataModule {
     @Singleton
     @Provides
     fun provideAlarmManager(@ApplicationContext context: Context): AlarmManager = context.getSystemService(AlarmManager::class.java)
+
+    @Singleton
+    @Provides
+    fun provideClock(): Clock = Clock.System
 }

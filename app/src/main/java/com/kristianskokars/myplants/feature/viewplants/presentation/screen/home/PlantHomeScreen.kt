@@ -49,6 +49,7 @@ import com.kristianskokars.myplants.feature.destinations.DeletePlantDialogDestin
 import com.kristianskokars.myplants.feature.destinations.NotificationsScreenDestination
 import com.kristianskokars.myplants.feature.destinations.PlantDetailsScreenDestination
 import com.kristianskokars.myplants.feature.viewplants.presentation.components.PlantCard
+import com.kristianskokars.myplants.lib.Loadable
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -102,7 +103,7 @@ private fun PlantHomeScreenContent(
         Scaffold(
             containerColor = Color.Transparent,
             floatingActionButton = {
-                if (state.plants.isNotEmpty()) {
+                if (state.plants is Loadable.Data && state.plants.data.isNotEmpty()) {
                     FloatingActionButton(
                         modifier = Modifier.padding(bottom = 64.dp),
                         elevation = FloatingActionButtonDefaults.loweredElevation(),
@@ -181,32 +182,40 @@ private fun PlantHomeScreenContent(
                         )
                     }
                     Spacer(modifier = Modifier.size(20.dp))
-                    if (state.plants.isEmpty()) {
-                        NoPlantsInList(onAddYourFirstPlantClick = { navigator.navigate(AddPlantScreenDestination())} )
-                    } else {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(state.plants, key = { it.id }) { plant ->
-                                PlantCard(
-                                    plant = plant,
-                                    onClick = { navigator.navigate(PlantDetailsScreenDestination(id = plant.id))},
-                                    onLongClick = {
-                                        navigator.navigate(
-                                            DeletePlantDialogDestinationDestination(
-                                                plantId = plant.id,
-                                                plantName = plant.name,
-                                            )
+                    when (state.plants) {
+                        is Loadable.Data -> {
+                            val plants = state.plants.data
+
+                            if (plants.isEmpty()) {
+                                NoPlantsInList(onAddYourFirstPlantClick = { navigator.navigate(AddPlantScreenDestination())} )
+                            } else {
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(2),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    items(plants, key = { it.modelId }) { plant ->
+                                        PlantCard(
+                                            plant = plant,
+                                            onClick = { navigator.navigate(PlantDetailsScreenDestination(id = plant.plantId))},
+                                            onLongClick = {
+                                                navigator.navigate(
+                                                    DeletePlantDialogDestinationDestination(
+                                                        plantId = plant.plantId,
+                                                        plantName = plant.name,
+                                                    )
+                                                )
+                                            },
+                                            onMarkPlantAsWatered = {
+                                                onEvent(PlantHomeEvent.MarkPlantAsWatered(plant.plantId))
+                                            }
                                         )
-                                    },
-                                    onMarkPlantAsWatered = {
-                                        onEvent(PlantHomeEvent.MarkPlantAsWatered(plant.id))
                                     }
-                                )
+                                }
                             }
                         }
+                        is Loadable.Error -> TODO()
+                        Loadable.Loading -> { /* Ignored */ }
                     }
                 }
                 LinearWhiteFadeOut(modifier = Modifier.align(Alignment.BottomCenter))

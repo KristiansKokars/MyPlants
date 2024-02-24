@@ -11,14 +11,17 @@ import com.kristianskokars.myplants.core.data.local.db.PlantDao
 import com.kristianskokars.myplants.core.data.local.db.PlantNotificationDao
 import com.kristianskokars.myplants.core.data.local.db.PlantWateredDateDao
 import com.kristianskokars.myplants.core.data.local.db.model.PlantWateredDateDBModel
-import com.kristianskokars.myplants.core.data.model.Plant
-import com.kristianskokars.myplants.core.data.model.didForgetToWater
+import com.kristianskokars.myplants.core.data.model.nextWateringDateInMillis
+import com.kristianskokars.myplants.lib.Loadable
 import com.kristianskokars.myplants.lib.launch
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,23 +30,14 @@ class PlantHomeViewModel @Inject constructor(
     private val plantNotificationDao: PlantNotificationDao,
     private val plantWateredDateDao: PlantWateredDateDao,
     private val plantWateringScheduler: PlantWateringScheduler,
+    private val clock: Clock
 ): ViewModel() {
     private var plantFilter by mutableStateOf(PlantFilter.UPCOMING)
 
     @Composable
     fun state(): PlantHomeState {
         return PlantHomeState(
-            plants = allPlants()
-                .filter { plant ->
-                    when (plantFilter) {
-                        PlantFilter.UPCOMING -> {
-                             plant.lastWateredDateInMillis == null || plant.lastWateredDateInMillis > Clock.System.now().toEpochMilliseconds()
-                        }
-                        PlantFilter.FORGOT_TO_WATER -> plant.didForgetToWater()
-                        PlantFilter.HISTORY -> true
-                    }
-                }
-                .toPersistentList(),
+            plants = getPlantsByFilter(),
             plantFilter = plantFilter,
             hasUnseenNotifications = hasUnseenNotifications()
         )
@@ -58,17 +52,80 @@ class PlantHomeViewModel @Inject constructor(
     }
 
     @Composable
-    private fun allPlants(): List<Plant> {
-        return plantDao
-            .getPlants()
-            .collectAsState(initial = emptyList()).value
-    }
-
-    @Composable
     private fun hasUnseenNotifications(): Boolean {
         return plantNotificationDao
             .hasUnseenNotifications()
             .collectAsState(initial = false).value
+    }
+
+    @Composable
+    private fun getPlantsByFilter(): Loadable<ImmutableList<PlantUIListModel>> {
+        return combine(
+            plantDao.getPlants(),
+            plantWateredDateDao.getDates()
+        ) { plants, dates ->
+            plants.map { plant ->
+                when (plantFilter) {
+                    PlantFilter.HISTORY -> {
+                        val plantModels = mutableListOf<PlantUIListModel>()
+                        dates.filter { it.plantId == plant.id }.forEach { date ->
+                            val plantUIListModel = PlantUIListModel(
+                                modelId = "${plant.id}.${date.dateInMillis}",
+                                plantId = plant.id,
+                                name = plant.name,
+                                description = plant.description,
+                                waterInMilliliters = plant.waterInMilliliters,
+                                wateringDateTimeInMillis = date.dateInMillis,
+                                pictureUrl = plant.pictureUrl,
+                                lastWateredDateInMillis = date.dateInMillis
+                            )
+                            plantModels.add(plantUIListModel)
+                        }
+                        plantModels
+                    }
+                    PlantFilter.FORGOT_TO_WATER -> {
+                        val plantModels = mutableListOf<PlantUIListModel>()
+                        val currentTime = clock.now()
+                        val nextDate = plant.nextWateringDateInMillis(Instant.fromEpochMilliseconds(plant.lastWateredDateInMillis ?: plant.createdAtInMillis))
+                        if (currentTime > Instant.fromEpochMilliseconds(nextDate)) {
+                            val plantUIListModel = PlantUIListModel(
+                                modelId = "${plant.id}.${nextDate}",
+                                plantId = plant.id,
+                                name = plant.name,
+                                description = plant.description,
+                                waterInMilliliters = plant.waterInMilliliters,
+                                wateringDateTimeInMillis = nextDate,
+                                pictureUrl = plant.pictureUrl,
+                                lastWateredDateInMillis = plant.lastWateredDateInMillis
+                            )
+                            plantModels.add(plantUIListModel)
+                        }
+                        plantModels
+                    }
+                    PlantFilter.UPCOMING -> {
+                        val plantModels = mutableListOf<PlantUIListModel>()
+                        var currentTime = clock.now()
+
+                        repeat(7) {
+                            val nextDate = plant.nextWateringDateInMillis(currentTime)
+                            val plantUIListModel = PlantUIListModel(
+                                modelId = "${plant.id}.${nextDate}",
+                                plantId = plant.id,
+                                name = plant.name,
+                                description = plant.description,
+                                waterInMilliliters = plant.waterInMilliliters,
+                                wateringDateTimeInMillis = nextDate,
+                                pictureUrl = plant.pictureUrl,
+                                lastWateredDateInMillis = plant.lastWateredDateInMillis
+                            )
+                            plantModels.add(plantUIListModel)
+                            currentTime = Instant.fromEpochMilliseconds(nextDate + 1L)
+                        }
+                        plantModels
+                    }
+                }
+            }.flatten().sortedBy { it.wateringDateTimeInMillis }.toPersistentList().let { Loadable.Data(it) }
+        }.collectAsState(initial = Loadable.Loading).value
     }
 
     private fun onPlantFilterChange(newPlantFilter: PlantFilter) {

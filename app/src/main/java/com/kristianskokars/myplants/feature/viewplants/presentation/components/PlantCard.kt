@@ -33,9 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.kristianskokars.myplants.R
-import com.kristianskokars.myplants.core.data.model.Plant
 import com.kristianskokars.myplants.core.data.model.isWatered
-import com.kristianskokars.myplants.core.data.model.nextWateringDateInMillis
 import com.kristianskokars.myplants.core.presentation.components.styledHazeChild
 import com.kristianskokars.myplants.core.presentation.theme.Accent100
 import com.kristianskokars.myplants.core.presentation.theme.Accent500
@@ -44,6 +42,7 @@ import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
 import com.kristianskokars.myplants.core.presentation.theme.OtherGreen100
 import com.kristianskokars.myplants.core.presentation.theme.TransparentGray
+import com.kristianskokars.myplants.feature.viewplants.presentation.screen.home.PlantUIListModel
 import com.kristianskokars.myplants.lib.toDateLabel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
@@ -51,7 +50,7 @@ import dev.chrisbanes.haze.haze
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlantCard(
-    plant: Plant,
+    plant: PlantUIListModel,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onMarkPlantAsWatered: () -> Unit,
@@ -99,7 +98,7 @@ fun PlantCard(
                         .styledHazeChild(state = hazeState)
                         .background(TransparentGray, shape = RoundedCornerShape(4.dp))
                         .padding(4.dp),
-                    text = plant.nextWateringDateInMillis().toDateLabel(),
+                    text = plant.wateringDateTimeInMillis.toDateLabel(),
                     style = MaterialTheme.typography.labelMedium,
                     color = Neutralus0
                 )

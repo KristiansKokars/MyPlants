@@ -27,6 +27,7 @@ import com.kristianskokars.myplants.lib.UIText
 import com.kristianskokars.myplants.lib.launch
 import com.kristianskokars.myplants.lib.randomID
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalTime
 import javax.inject.Inject
 
@@ -38,6 +39,7 @@ class AddPlantViewModel @Inject constructor(
     private val fileStorage: FileStorage,
     private val navigator: Navigator,
     private val toaster: Toaster,
+    private val clock: Clock,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val navArgs = savedStateHandle.navArgs<AddPlantNavArgs>()
@@ -111,6 +113,7 @@ class AddPlantViewModel @Inject constructor(
             val url = imageUrl?.let { imageUrl ->
                 fileStorage.saveFileToInternalAppStorage(imageUrl.toUri(), plantName)
             }
+            val existingPlant = plantDao.getPlantSingle(plantId)
             plantDao.insertPlant(
                 Plant(
                     id = plantId,
@@ -120,7 +123,8 @@ class AddPlantViewModel @Inject constructor(
                     wateringTimeInMillis = selectedTime.toMillisecondOfDay(),
                     wateringDates = selectedPlantDates,
                     pictureUrl = url,
-                    size = selectedPlantSize
+                    size = selectedPlantSize,
+                    createdAtInMillis = existingPlant.createdAtInMillis
                 )
             )
             plantWateringScheduler.scheduleWatering(
@@ -154,7 +158,8 @@ class AddPlantViewModel @Inject constructor(
                     wateringTimeInMillis = selectedTime.toMillisecondOfDay(),
                     wateringDates = selectedPlantDates,
                     pictureUrl = url,
-                    size = selectedPlantSize
+                    size = selectedPlantSize,
+                    createdAtInMillis = clock.now().toEpochMilliseconds()
                 )
             )
             plantWateringScheduler.scheduleWatering(

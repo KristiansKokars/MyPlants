@@ -3,6 +3,7 @@ package com.kristianskokars.myplants.core.data.model
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.kristianskokars.myplants.feature.viewplants.presentation.screen.home.PlantUIListModel
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.Instant
@@ -29,6 +30,7 @@ data class Plant(
     val pictureUrl: String?,
     val size: PlantSize,
     val lastWateredDateInMillis: Long? = null,
+    val createdAtInMillis: Long,
 ) : Parcelable
 
 fun Plant.wateringFrequencyPerWeek(): Int {
@@ -44,30 +46,25 @@ fun Plant.wateringFrequencyPerWeek(): Int {
     return frequency
 }
 
-fun Plant.isWatered(): Boolean {
-    val currentTimeInMillis = Clock.System.now().toEpochMilliseconds()
-    return lastWateredDateInMillis != null && currentTimeInMillis > lastWateredDateInMillis && nextWateringDateInMillis() > currentTimeInMillis
-}
-
-fun Plant.didForgetToWater(): Boolean {
-    val currentTimeInMillis = Clock.System.now().toEpochMilliseconds()
-    return lastWateredDateInMillis != null && currentTimeInMillis > lastWateredDateInMillis && nextWateringDateInMillis() < currentTimeInMillis
+fun PlantUIListModel.isWatered(): Boolean {
+    val currentTime = Clock.System.now()
+    val currentTimeInMillis = currentTime.toEpochMilliseconds()
+    return lastWateredDateInMillis != null && currentTimeInMillis > wateringDateTimeInMillis
 }
 
 fun Plant.nextWateringDateInMillis(
-    clock: Clock = Clock.System,
+    currentTime: Instant,
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ): Long {
     val plant = this
-    val currentDate = clock.now().toLocalDateTime(timeZone)
-    val lastWateredDate = plant.lastWateredDateInMillis?.let { Instant.fromEpochMilliseconds(it) }?.toLocalDateTime(timeZone)
+    val currentDate = currentTime.toLocalDateTime(timeZone)
     val wateringTime = LocalTime.fromMillisecondOfDay(plant.wateringTimeInMillis)
     var nextWateringDateInMillis: Long? = null
 
     plant.wateringDates.forEach { day ->
         when (day) {
             Day.EVERYDAY -> {
-                nextWateringDateInMillis = if (currentDate.date == lastWateredDate?.date && currentDate.time > lastWateredDate.time) {
+                nextWateringDateInMillis = if (currentDate.time > wateringTime) {
                     currentDate.date.plus(DatePeriod(days = 1)).atTime(wateringTime).toInstant(timeZone).toEpochMilliseconds()
                 } else {
                     currentDate.date.atTime(wateringTime).toInstant(timeZone).toEpochMilliseconds()
@@ -75,7 +72,7 @@ fun Plant.nextWateringDateInMillis(
                 return@forEach
             }
             else -> {
-                if (currentDate.date == lastWateredDate?.date && day.toDayNumber() == currentDate.dayOfWeek.isoDayNumber) {
+                if (day.toDayNumber() == currentDate.dayOfWeek.isoDayNumber) {
                     val nextWateringTime = currentDate.date
                         .plus(DatePeriod(days = 7))
                         .atTime(wateringTime)
