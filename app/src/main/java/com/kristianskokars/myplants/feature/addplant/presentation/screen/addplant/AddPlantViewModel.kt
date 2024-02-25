@@ -67,6 +67,7 @@ class AddPlantViewModel @Inject constructor(
             }
         }
     }
+
     @Composable
     fun state(): AddPlantState {
         return AddPlantState(
