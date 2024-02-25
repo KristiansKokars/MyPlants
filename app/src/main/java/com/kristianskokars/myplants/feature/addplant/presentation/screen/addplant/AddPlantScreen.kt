@@ -49,6 +49,7 @@ import com.kristianskokars.myplants.core.presentation.components.TimePickerDialo
 import com.kristianskokars.myplants.core.presentation.theme.MyPlantsTheme
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 import com.kristianskokars.myplants.core.presentation.theme.OtherGreen100
+import com.kristianskokars.myplants.feature.addplant.presentation.screen.pickplantsize.PickPlantSizeDialogNavArgs
 import com.kristianskokars.myplants.feature.destinations.PickPlantSizeDialogDestinationDestination
 import com.kristianskokars.myplants.feature.destinations.PickWaterAmountDialogDestination
 import com.kristianskokars.myplants.feature.destinations.PickWateringDatesDialogDestinationDestination
@@ -301,7 +302,13 @@ private fun PlantCreationForms(
             )
             Combobox(
                 modifier = Modifier.weight(1f),
-                onClick = { navigator.navigate(PickPlantSizeDialogDestinationDestination) },
+                onClick = {
+                    navigator.navigate(
+                        PickPlantSizeDialogDestinationDestination(
+                            PickPlantSizeDialogNavArgs(initialSize = state.selectedPlantSize)
+                        )
+                    )
+                },
                 label = { Text(text = stringResource(R.string.plant_size_mandatory)) },
                 text = { Text(text = state.selectedPlantSize.toUIString()) }
             )
