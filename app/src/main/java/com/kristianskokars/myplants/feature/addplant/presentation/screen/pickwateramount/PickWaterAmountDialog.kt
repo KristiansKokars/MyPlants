@@ -35,10 +35,12 @@ import kotlin.math.roundToInt
 @Destination(style = DestinationStyle.Dialog.Default::class)
 @Composable
 fun PickWaterAmountDialog(
+    initialWaterAmount: Float = 250f,
     navigator: DestinationsNavigator,
     resultNavigator: ResultBackNavigator<Int>
 ) {
     PickWaterAmountDialog(
+        initialWaterAmount = initialWaterAmount,
         onDismiss = navigator::navigateUp,
         resultNavigator = resultNavigator,
     )
@@ -46,10 +48,11 @@ fun PickWaterAmountDialog(
 
 @Composable
 private fun PickWaterAmountDialog(
+    initialWaterAmount: Float,
     onDismiss: () -> Unit,
     resultNavigator: ResultBackNavigator<Int>,
 ) {
-    var value by remember { mutableFloatStateOf(250f) }
+    var value by remember { mutableFloatStateOf(initialWaterAmount) }
 
     Dialog(onDismissRequest = onDismiss) {
         Column(

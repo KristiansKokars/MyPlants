@@ -296,7 +296,7 @@ private fun PlantCreationForms(
         ) {
             Combobox(
                 modifier = Modifier.weight(1f),
-                onClick = { navigator.navigate(PickWaterAmountDialogDestination) },
+                onClick = { navigator.navigate(PickWaterAmountDialogDestination(state.waterAmount.toFloat())) },
                 label = { Text(text = stringResource(R.string.the_amount_of_water_mandatory)) },
                 text = { Text(text = "${state.waterAmount}${stringResource(R.string.ml)}") }
             )
