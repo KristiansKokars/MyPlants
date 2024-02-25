@@ -265,7 +265,7 @@ private fun NotificationCard(
         }
         Spacer(modifier = Modifier.size(8.dp))
         Text(
-            text = stringResource(R.string.remember_water_notification_text, notification.plantName),
+            text = notification.message,
             style = MaterialTheme.typography.bodySmall
         )
         TextButton(
