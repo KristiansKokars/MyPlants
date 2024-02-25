@@ -62,6 +62,7 @@
     <string name="plant_reminder_notification_text">Click here for more information.</string>
     <string name="dont_forget_to_water_your_plant">Don\'t forget to water your \"%1$s\" today</string>
     <string name="tomorrow">Tomorrow</string>
+    <string name="yesterday">Yesterday</string>
     <string name="remember_water_notification_text">Don\'t forget to water your \"%1$s\" today</string>
     <string name="daily_plant_notification">Daily plant notification</string>
 </resources>

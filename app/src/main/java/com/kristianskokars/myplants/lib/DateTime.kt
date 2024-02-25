@@ -14,6 +14,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -46,7 +47,8 @@ fun Long.toDateLabel(): String {
 
     return when {
         localDateTime.date == currentTime.date -> stringResource(id = R.string.today)
-        localDateTime.date + DatePeriod(days = 1) == currentTime.date -> stringResource(R.string.tomorrow)
+        localDateTime.date - DatePeriod(days = 1) == currentTime.date -> stringResource(R.string.tomorrow)
+        localDateTime.date + DatePeriod(days = 1) == currentTime.date -> stringResource(R.string.yesterday)
         else -> localDateTime.toJavaLocalDateTime().format(dateFormatter)
     }
 }
