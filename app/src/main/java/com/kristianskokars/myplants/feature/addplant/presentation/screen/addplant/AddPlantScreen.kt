@@ -50,6 +50,7 @@ import com.kristianskokars.myplants.core.presentation.theme.MyPlantsTheme
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
 import com.kristianskokars.myplants.core.presentation.theme.OtherGreen100
 import com.kristianskokars.myplants.feature.addplant.presentation.screen.pickplantsize.PickPlantSizeDialogNavArgs
+import com.kristianskokars.myplants.feature.addplant.presentation.screen.pickwateringdates.PickWateringDatesDialogNavArgs
 import com.kristianskokars.myplants.feature.destinations.PickPlantSizeDialogDestinationDestination
 import com.kristianskokars.myplants.feature.destinations.PickWaterAmountDialogDestination
 import com.kristianskokars.myplants.feature.destinations.PickWateringDatesDialogDestinationDestination
@@ -277,7 +278,13 @@ private fun PlantCreationForms(
         ) {
             Combobox(
                 modifier = Modifier.weight(1f),
-                onClick = { navigator.navigate(PickWateringDatesDialogDestinationDestination) },
+                onClick = {
+                    navigator.navigate(
+                        PickWateringDatesDialogDestinationDestination(
+                            PickWateringDatesDialogNavArgs(DayList(state.selectedDates))
+                        )
+                    )
+                },
                 label = { Text(text = stringResource(id = R.string.dates)) },
                 text = { Text(text = state.selectedDates.toDayText()) }
             )

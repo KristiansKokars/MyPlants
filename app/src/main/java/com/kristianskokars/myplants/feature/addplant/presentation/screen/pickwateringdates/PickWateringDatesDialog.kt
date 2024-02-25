@@ -1,5 +1,6 @@
 package com.kristianskokars.myplants.feature.addplant.presentation.screen.pickwateringdates
 
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,8 +36,15 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
+import kotlinx.parcelize.Parcelize
 
-@Destination(style = DestinationStyle.Dialog.Default::class)
+@Parcelize
+data class PickWateringDatesDialogNavArgs(val initialDays: DayList) : Parcelable
+
+@Destination(
+    style = DestinationStyle.Dialog.Default::class,
+    navArgsDelegate = PickWateringDatesDialogNavArgs::class
+)
 @Composable
 fun PickWateringDatesDialogDestination(
     navigator: DestinationsNavigator,
