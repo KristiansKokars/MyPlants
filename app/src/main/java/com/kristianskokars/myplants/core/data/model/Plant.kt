@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.kristianskokars.myplants.feature.viewplants.presentation.screen.home.PlantUIListModel
+import com.kristianskokars.myplants.lib.getNextDateAtDayOfWeek
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.Instant
@@ -82,12 +83,8 @@ fun Plant.nextWateringDateInMillis(
                         nextWateringDateInMillis = nextWateringTime
                     }
                 } else {
-                    var daysToAdd = (day.toDayNumber() - currentDate.dayOfWeek.isoDayNumber)
-                    if (daysToAdd < 0) {
-                        daysToAdd += 7
-                    }
-                    val nextWateringTime = currentDate.date
-                        .plus(DatePeriod(days = daysToAdd))
+                    val nextWateringTime = currentDate
+                        .getNextDateAtDayOfWeek(day)
                         .atTime(wateringTime)
                         .toInstant(timeZone)
                         .toEpochMilliseconds()

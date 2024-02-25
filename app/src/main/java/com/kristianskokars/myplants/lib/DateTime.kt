@@ -5,11 +5,15 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.res.stringResource
 import com.kristianskokars.myplants.R
+import com.kristianskokars.myplants.core.data.model.Day
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -59,4 +63,13 @@ fun Long.toTimeLabel(): String {
         .withLocale(Locale.US) // we only support english, so having other languages for dates only would feel off
 
     return localDateTime.toJavaLocalDateTime().format(dateFormatter)
+}
+
+fun LocalDateTime.getNextDateAtDayOfWeek(day: Day): LocalDate {
+    var daysToAdd = (day.toDayNumber() - dayOfWeek.isoDayNumber)
+    if (daysToAdd < 0) {
+        daysToAdd += 7
+    }
+    return date
+        .plus(DatePeriod(days = daysToAdd))
 }
