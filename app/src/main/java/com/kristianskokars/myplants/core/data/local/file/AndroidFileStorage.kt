@@ -33,6 +33,9 @@ class AndroidFileStorage @Inject constructor(
     }
 
     override suspend fun deleteFileFromInternalAppStorage(uri: Uri) = withContext(ioDispatcher) {
-        // TODO: create the deletion of files
+        val filePath = uri.path ?: return@withContext
+        val file = File(filePath)
+
+        file.delete()
     }
 }

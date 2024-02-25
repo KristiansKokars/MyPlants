@@ -5,12 +5,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import com.kristianskokars.myplants.core.data.local.PlantWateringScheduler
 import com.kristianskokars.myplants.core.data.local.db.PlantDao
 import com.kristianskokars.myplants.core.data.local.db.PlantNotificationDao
 import com.kristianskokars.myplants.core.data.local.db.PlantWateredDateDao
 import com.kristianskokars.myplants.core.data.local.db.model.PlantWateredDateDBModel
+import com.kristianskokars.myplants.core.data.local.file.FileStorage
 import com.kristianskokars.myplants.core.data.model.nextWateringDateInMillis
 import com.kristianskokars.myplants.lib.Loadable
 import com.kristianskokars.myplants.lib.launch
@@ -30,6 +32,7 @@ class PlantHomeViewModel @Inject constructor(
     private val plantNotificationDao: PlantNotificationDao,
     private val plantWateredDateDao: PlantWateredDateDao,
     private val plantWateringScheduler: PlantWateringScheduler,
+    private val fileStorage: FileStorage,
     private val clock: Clock
 ): ViewModel() {
     private var plantFilter by mutableStateOf(PlantFilter.UPCOMING)
@@ -136,7 +139,9 @@ class PlantHomeViewModel @Inject constructor(
         launch {
             withContext(NonCancellable) {
                 plantWateringScheduler.unscheduleWatering(plantId)
+                val plant = plantDao.getPlantSingle(plantId)
                 plantDao.deletePlant(plantId)
+                plant.pictureUrl?.let { fileStorage.deleteFileFromInternalAppStorage(it.toUri()) }
             }
         }
     }

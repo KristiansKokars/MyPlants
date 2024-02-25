@@ -27,6 +27,8 @@ import com.kristianskokars.myplants.lib.UIText
 import com.kristianskokars.myplants.lib.launch
 import com.kristianskokars.myplants.lib.randomID
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalTime
 import javax.inject.Inject
@@ -110,35 +112,40 @@ class AddPlantViewModel @Inject constructor(
         val plantId = navArgs.plantId ?: return
 
         launch {
-            // TODO: delete old image if it is not the same
-            val url = imageUrl?.let { imageUrl ->
-                fileStorage.saveFileToInternalAppStorage(imageUrl.toUri(), plantName)
+            withContext(NonCancellable) {
+                val existingPlant = plantDao.getPlantSingle(plantId)
+
+                val url = imageUrl?.let { imageUrl ->
+                    if (imageUrl != existingPlant.pictureUrl) {
+                        existingPlant.pictureUrl?.let { fileStorage.deleteFileFromInternalAppStorage(it.toUri()) }
+                        fileStorage.saveFileToInternalAppStorage(imageUrl.toUri(), plantName)
+                    } else existingPlant.pictureUrl
+                }
+                plantDao.insertPlant(
+                    Plant(
+                        id = plantId,
+                        name = plantName,
+                        description = plantDescription,
+                        waterInMilliliters = waterAmount,
+                        wateringTimeInMillis = selectedTime.toMillisecondOfDay(),
+                        wateringDates = selectedPlantDates,
+                        pictureUrl = url,
+                        size = selectedPlantSize,
+                        createdAtInMillis = existingPlant.createdAtInMillis
+                    )
+                )
+                plantWateringScheduler.scheduleWatering(
+                    days = selectedPlantDates,
+                    time = selectedTime,
+                    plantId = plantId,
+                    extras = mapOf(
+                        DeepLinks.Type.PLANT.toPair(),
+                        DeepLinks.Extra.NAME.toString() to plantName
+                    )
+                )
+                navigator.navigate(Navigator.Action.GoBack)
+                toaster.show(Toaster.Message(UIText.StringResource(R.string.plant_edited)))
             }
-            val existingPlant = plantDao.getPlantSingle(plantId)
-            plantDao.insertPlant(
-                Plant(
-                    id = plantId,
-                    name = plantName,
-                    description = plantDescription,
-                    waterInMilliliters = waterAmount,
-                    wateringTimeInMillis = selectedTime.toMillisecondOfDay(),
-                    wateringDates = selectedPlantDates,
-                    pictureUrl = url,
-                    size = selectedPlantSize,
-                    createdAtInMillis = existingPlant.createdAtInMillis
-                )
-            )
-            plantWateringScheduler.scheduleWatering(
-                days = selectedPlantDates,
-                time = selectedTime,
-                plantId = plantId,
-                extras = mapOf(
-                    DeepLinks.Type.PLANT.toPair(),
-                    DeepLinks.Extra.NAME.toString() to plantName
-                )
-            )
-            navigator.navigate(Navigator.Action.GoBack)
-            toaster.show(Toaster.Message(UIText.StringResource(R.string.plant_edited)))
         }
     }
 
