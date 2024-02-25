@@ -19,14 +19,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,13 +40,14 @@ import com.kristianskokars.myplants.core.data.model.DayList
 import com.kristianskokars.myplants.core.data.model.PlantSize
 import com.kristianskokars.myplants.core.presentation.components.BigButton
 import com.kristianskokars.myplants.core.presentation.components.Combobox
+import com.kristianskokars.myplants.core.presentation.components.MyPlantsIconButton
 import com.kristianskokars.myplants.core.presentation.components.MyPlantsTextField
 import com.kristianskokars.myplants.core.presentation.components.PlantsWallpaper
+import com.kristianskokars.myplants.core.presentation.components.ScreenSurface
 import com.kristianskokars.myplants.core.presentation.components.SmallButton
 import com.kristianskokars.myplants.core.presentation.components.TimePickerDialog
 import com.kristianskokars.myplants.core.presentation.theme.MyPlantsTheme
 import com.kristianskokars.myplants.core.presentation.theme.Neutralus0
-import com.kristianskokars.myplants.core.presentation.theme.Neutralus900
 import com.kristianskokars.myplants.core.presentation.theme.OtherGreen100
 import com.kristianskokars.myplants.feature.destinations.PickPlantSizeDialogDestinationDestination
 import com.kristianskokars.myplants.feature.destinations.PickWaterAmountDialogDestination
@@ -81,11 +81,13 @@ fun AddPlantScreen(
             viewModel.onEvent(AddPlantEvent.OnAddPhoto(uri.toString()))
         }
     )
-    val onAddImage = remember { { uploadImage.launch("image/*")} }
+    val onAddImage = remember { { uploadImage.launch("image/*") } }
 
     pickWateringDatesResultRecipient.onNavResult { result ->
         when (result) {
-            NavResult.Canceled -> { /* Ignored */ }
+            NavResult.Canceled -> { /* Ignored */
+            }
+
             is NavResult.Value -> {
                 viewModel.onEvent(AddPlantEvent.OnWateringDatesSelected(result.value.list))
             }
@@ -93,7 +95,9 @@ fun AddPlantScreen(
     }
     pickPlantSizeResultRecipient.onNavResult { result ->
         when (result) {
-            NavResult.Canceled -> { /* Ignored */ }
+            NavResult.Canceled -> { /* Ignored */
+            }
+
             is NavResult.Value -> {
                 viewModel.onEvent(AddPlantEvent.OnPlantSizeSelected(result.value))
             }
@@ -101,7 +105,9 @@ fun AddPlantScreen(
     }
     pickWaterAmountResultRecipient.onNavResult { result ->
         when (result) {
-            NavResult.Canceled -> { /* Ignored */ }
+            NavResult.Canceled -> { /* Ignored */
+            }
+
             is NavResult.Value -> {
                 viewModel.onEvent(AddPlantEvent.OnWaterAmountSelected(result.value))
             }
@@ -123,23 +129,54 @@ private fun AddPlantScreenContent(
     onEvent: (AddPlantEvent) -> Unit,
     onChangeImageClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+    ScreenSurface(
+        backgroundContent = {
+            if (state.imageUrl == null) {
+                PlantsWallpaper()
+            } else {
+                AsyncImage(
+                    modifier = Modifier
+                        .height(488.dp)
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center,
+                    model = state.imageUrl,
+                    contentDescription = stringResource(R.string.plant_image)
+                )
+            }
+        },
+        shouldPadAgainstInsets = false,
+        backgroundColor = OtherGreen100
     ) {
-        ImageSection(
-            modifier = Modifier.height(344.dp),
-            imageUrl = state.imageUrl,
-            onGoBack = navigator::navigateUp,
-            onChangeImageClick = onChangeImageClick
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        PlantCreationForms(
-            navigator = navigator,
-            state = state,
-            onEvent = onEvent,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            ImageSection(
+                modifier = Modifier.height(488.dp),
+                imageUrl = state.imageUrl,
+                onGoBack = navigator::navigateUp,
+                onChangeImageClick = onChangeImageClick
+            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer { translationY = -24.dp.toPx() }
+                        .background(
+                            color = Neutralus0,
+                            RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                        )
+                        .fillMaxWidth()
+                        .height(24.dp)
+                )
+                PlantCreationForms(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    navigator = navigator,
+                    state = state,
+                    onEvent = onEvent,
+                )
+            }
+        }
     }
 }
 
@@ -150,46 +187,39 @@ fun ImageSection(
     onGoBack: () -> Unit,
     onChangeImageClick: () -> Unit,
 ) {
-    Box(modifier = modifier.background(OtherGreen100)) {
-        if (imageUrl == null) {
-            PlantsWallpaper()
-            Image(
-                modifier = Modifier
-                    .zIndex(-1f)
-                    .fillMaxSize(0.5f)
-                    .align(Alignment.Center),
-                painter = painterResource(id = R.drawable.ic_placeholder_plant),
-                contentDescription = stringResource(R.string.plant_image)
-            )
-        } else {
-            AsyncImage(
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds,
-                model = imageUrl,
-                contentDescription = stringResource(R.string.plant_image)
-            )
-        }
-        FilledIconButton(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 48.dp),
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = Neutralus0,
-                contentColor = Neutralus900
-            ),
-            onClick = onGoBack,
+    Column(modifier = modifier) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 48.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_go_back),
-                contentDescription = stringResource(R.string.go_back)
+            MyPlantsIconButton(
+                iconPainter = painterResource(id = R.drawable.ic_go_back),
+                contentDescription = stringResource(R.string.go_back),
+                onClick = onGoBack
             )
         }
         Column(
             modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .padding(bottom = 48.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Spacer(modifier = Modifier.size(48.dp))
+
+            if (imageUrl == null) {
+                Image(
+                    modifier = Modifier.zIndex(-1f),
+                    alignment = Alignment.Center,
+                    painter = painterResource(id = R.drawable.ic_placeholder_plant),
+                    contentDescription = stringResource(R.string.plant_image)
+                )
+            } else {
+                Spacer(modifier = Modifier.size(48.dp))
+            }
+
             SmallButton(onClick = onChangeImageClick) {
                 Icon(
                     modifier = Modifier.size(20.dp),
@@ -210,6 +240,7 @@ fun ImageSection(
 
 @Composable
 private fun PlantCreationForms(
+    modifier: Modifier,
     navigator: DestinationsNavigator,
     state: AddPlantState,
     onEvent: (AddPlantEvent) -> Unit
@@ -222,18 +253,18 @@ private fun PlantCreationForms(
     )
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = Neutralus0,
-                RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
             )
-            .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp)
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         MyPlantsTextField(
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(text = stringResource(R.string.plant_name_mandatory) )},
+            label = { Text(text = stringResource(R.string.plant_name_mandatory)) },
             value = state.plantName,
             onValueChange = { onEvent(AddPlantEvent.OnPlantNameChange(it)) }
         )
@@ -246,13 +277,13 @@ private fun PlantCreationForms(
             Combobox(
                 modifier = Modifier.weight(1f),
                 onClick = { navigator.navigate(PickWateringDatesDialogDestinationDestination) },
-                label = { Text(text = stringResource(id = R.string.dates))},
+                label = { Text(text = stringResource(id = R.string.dates)) },
                 text = { Text(text = state.selectedDates.toDayText()) }
             )
             Combobox(
                 modifier = Modifier.weight(1f),
                 onClick = selectTimeDialogState::show,
-                label = { Text(text = stringResource(R.string.time))},
+                label = { Text(text = stringResource(R.string.time)) },
                 text = { Text(text = state.selectedTime.toString()) }
             )
         }

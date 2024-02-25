@@ -89,8 +89,9 @@ fun PlantDetailsScreenContent(
                 PlantsWallpaper()
             } else {
                 AsyncImage(
-                    modifier = Modifier.height(488.dp),
-                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.height(488.dp).fillMaxWidth(),
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center,
                     model = state.plant.pictureUrl,
                     contentDescription = stringResource(R.string.plant_image)
                 )
