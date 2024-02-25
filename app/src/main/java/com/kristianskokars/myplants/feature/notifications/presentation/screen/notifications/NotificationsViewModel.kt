@@ -19,12 +19,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
     private val plantNotificationDao: PlantNotificationDao,
     private val navigator: Navigator,
+    private val timeZone: TimeZone
 ) : ViewModel() {
     private var notificationFilter by mutableStateOf(NotificationsFilter.ALL)
 
@@ -47,18 +52,34 @@ class NotificationsViewModel @Inject constructor(
     private fun allNotifications(): List<NotificationUIModel> {
         return plantNotificationDao
             .getNotificationsWithPlant()
-            .map { notifications -> notifications.map { (notification, plant) ->
-                NotificationUIModel.Notification(
-                    PlantNotification(
-                        id = notification.id,
-                        plantId = notification.plantId,
-                        plantName = plant.name,
-                        message = notification.message,
-                        dateInMillis = notification.dateInMillis,
-                        isSeen = notification.isSeen
+            .map { notifications ->
+                var lastNotificationDate = LocalDate(1, 1, 1)
+                val newNotifications = mutableListOf<NotificationUIModel>()
+
+                notifications.forEach { (notification, plant) ->
+                    val notificationDate = Instant
+                        .fromEpochMilliseconds(notification.dateInMillis)
+                        .toLocalDateTime(timeZone).date
+                    if (notificationDate != lastNotificationDate) {
+                        newNotifications.add(
+                            NotificationUIModel.Date(notification.dateInMillis)
+                        )
+                    }
+                    lastNotificationDate = notificationDate
+                    newNotifications.add(
+                        NotificationUIModel.Notification(
+                            PlantNotification(
+                                id = notification.id,
+                                plantId = notification.plantId,
+                                plantName = plant.name,
+                                message = notification.message,
+                                dateInMillis = notification.dateInMillis,
+                                isSeen = notification.isSeen
+                            )
+                        )
                     )
-                )
-            }
+                }
+                newNotifications
             }
             .collectAsState(initial = emptyList()).value
     }

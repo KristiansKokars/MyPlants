@@ -54,6 +54,7 @@ import com.kristianskokars.myplants.core.presentation.theme.Red
 import com.kristianskokars.myplants.feature.notifications.presentation.model.NotificationUIModel
 import com.kristianskokars.myplants.feature.notifications.presentation.model.NotificationsFilter
 import com.kristianskokars.myplants.lib.fillParentWidth
+import com.kristianskokars.myplants.lib.toDateLabel
 import com.kristianskokars.myplants.lib.toTimeLabel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -181,11 +182,19 @@ private fun NotificationsScreenContent(
                 items(
                     state.notifications,
                     key = { when (it) {
+                        is NotificationUIModel.Date -> it.dateInMillis
                         is NotificationUIModel.Divider -> it.text
                         is NotificationUIModel.Notification -> it.notification.id
                     } },
                 ) { notificationUIModel ->
                     when (notificationUIModel) {
+                        is NotificationUIModel.Date -> {
+                            Text(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                text = notificationUIModel.dateInMillis.toDateLabel(),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                         is NotificationUIModel.Divider -> {
                             Text(
                                 text = notificationUIModel.text.toUIString(),
