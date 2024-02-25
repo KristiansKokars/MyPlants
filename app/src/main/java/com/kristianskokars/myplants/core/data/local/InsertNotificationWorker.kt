@@ -26,7 +26,6 @@ class InsertNotificationWorker @AssistedInject constructor(
         val plantId = inputData.getString(PLANT_ID) ?: return Result.failure()
         val plantName = inputData.getString(PLANT_NAME) ?: return Result.failure()
 
-
         CoroutineScope(Dispatchers.IO + NonCancellable).launch {
             plantNotificationDao.insertNotification(
                 PlantNotificationDBModel(

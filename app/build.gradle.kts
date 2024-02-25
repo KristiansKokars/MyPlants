@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.work)
     ksp(libs.dagger.hilt.compiler)
+    ksp(libs.hilt.android.compiler)
 
     // Haze
     implementation(libs.haze)

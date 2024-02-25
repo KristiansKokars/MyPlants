@@ -3,6 +3,7 @@ agp = "8.2.2"
 androidx-work-runtime-ktx = "2.9.0"
 haze = "0.5.3"
 hilt-work = "1.2.0"
+hilt-android-compiler = "1.2.0"
 kotlin = "1.9.22"
 core-ktx = "1.12.0"
 junit = "4.13.2"
@@ -54,6 +55,7 @@ compose-datetime = { module = "io.github.vanpra.compose-material-dialogs:datetim
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 dagger-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+hilt-android-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-android-compiler" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
