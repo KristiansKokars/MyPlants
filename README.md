@@ -1,5 +1,5 @@
 
-<img src="screenshots/MyPlants.png" alt="My Plants Feature Picture" />
+<img src="screenshots/MyPlants.jpg" alt="My Plants Feature Picture" />
 
 # My Plants
 
