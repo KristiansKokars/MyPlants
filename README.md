@@ -13,6 +13,11 @@ An application for keeping track of your plants and when to water them automatic
 - View and edit existing information about your plant.
 - Delete plants if they are no longer needed.
 
+## Screenshots
+|                                  |                                    |                                              |                                                |
+|:--------------------------------:|:----------------------------------:|:--------------------------------------------:|:----------------------------------------------:|
+| ![1](screenshots/PlantsList.png) | ![2](screenshots/PlantDetails.png) | ![3](screenshots/PlantNotificationsList.png) | ![4](screenshots/SelectPlantWateringDates.png) |
+
 ## Architecture
 
 The app follows the official Android app architecture guidance., using the MVI (Model-View-Intent) pattern and uses Compose State to simplify
